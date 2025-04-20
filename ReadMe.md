@@ -1,4 +1,4 @@
-# FileZipArchiver
+# FileArchiver
 
 このアプリケーションは、指定したディレクトリ内のファイルを自動的に Zip 圧縮し、元ファイルを削除するツールです。
 一定日数以上経過したファイルだけを対象とすることで、不要な古いファイルをアーカイブし、ディスク領域を効率的に利用できます。
@@ -136,4 +136,4 @@ New-EventLog -LogName Application -Source "FileArchiver"
 
 - `.NET Framework 4.6.2` 以降で動作します。
 - 圧縮先は個別ファイル (\*.zip) となり、衝突を避けるために `_yyyyMMddHHmmss` を付加して命名します。
-
+- このツールは、ChatGPTを用いて作成しました。
