@@ -27,7 +27,7 @@
 1. **ヘルプ表示**
 
    ```powershell
-   FileZipArchiver.exe --help
+   FileArchiver.exe --help
    ```
 
    主要なオプションと簡易説明を表示します。
@@ -52,7 +52,7 @@
 3. **整合性チェック**
 
    ```powershell
-   FileZipArchiver.exe --check
+   FileArchiver.exe --check
    ```
 
    `config.toml` の内容と整合性をチェックし、エラーや警告があれば表示します。
@@ -60,7 +60,7 @@
 4. **Dry-run**
 
    ```powershell
-   FileZipArchiver.exe --dry-run
+   FileArchiver.exe --dry-run
    ```
 
    ファイル操作は行わず、処理予定ファイルのみをログ出力。安全にテストできます。
@@ -68,7 +68,7 @@
 5. **本番実行**
 
    ```powershell
-   FileZipArchiver.exe
+   FileArchiver.exe
    ```
 
    設定ファイルにしたがって、ZIP圧縮や削除を実施。実行内容はコンソールと `log.txt` に出力されます。
