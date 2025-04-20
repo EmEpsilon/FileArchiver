@@ -1,0 +1,77 @@
+# ログファイルの出力先パス
+# 例: "C:/Logs/archive_log.txt"
+# ディレクトリが存在しない場合、自動的に作成されます
+LogFilePath = "./log/log.txt"
+
+# ログレベル (debug / info / warn / error)
+# debug  : すべてのログを出力
+# info   : debug以外を出力
+# warn   : warn と error のみ出力
+# error  : error のみ出力
+LogLevel = "info"
+
+# ログファイルの最大サイズ (バイト単位)
+# このサイズを超えると ZIP 圧縮され、ログファイルはローテートされます
+MaxLogSizeBytes = 10485760  # 1MB
+
+# ZIPファイルの命名フォーマット
+# 例: "archive_{0:yyyyMMddHHmmss}.zip"
+# {0} 部分が DateTime (yyyyMMddHHmmss) に置換されます
+ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"
+
+# Windowsイベントログへの出力を有効化するか (true/false)
+EnableEventLog = false
+
+# Windowsイベントログに出力するログの最低レベル
+# debug / info / warn / error のいずれか
+EventLogLevel = "warn"
+
+# 複数フォルダを指定する場合は [[FolderSettings]] ブロックを繰り返し記述可能
+[[FolderSettings]]
+
+# 処理対象となるディレクトリパス (必須)
+Directory = "C:/data"
+
+# サブディレクトリを再帰的に検索するか (true/false)
+Recursive = true
+
+# IncludePattern : 対象となるファイルの正規表現
+# 例: "\\.log$" は .logで終わるファイルを対象に
+IncludePattern = "\\.log"
+
+# ExcludePattern : 除外するファイルの正規表現
+# 例: "^temp" は tempで始まるファイルを除外
+ExcludePattern = "^temp"
+
+# [ZIP圧縮] の対象判定(更新日ベース):
+# 更新日が (DaysOld) 日以上古いファイルは圧縮対象
+DaysOld = 30
+
+# [リネーム] 機能を有効化するか (true/false)
+EnableRename = true
+
+# リネーム対象判定(作成日ベース):
+# 作成日が (RenameDaysOld) 日以上古いファイルはリネーム対象
+RenameDaysOld = 30
+
+# ファイルが使用中だった際の挙動 (warn / error)
+# warn  : 警告を出してスキップし、処理続行
+# error : 例外として扱い、エラー出力
+RenameOnInUse = "warn"
+
+# [削除] 機能を有効化するか (true/false)
+EnableDelete = true
+
+# 削除対象判定(作成日ベース):
+# 作成日が (DeleteDaysOld) 日以上古いファイルは削除対象
+DeleteDaysOld = 60
+
+# ファイルが使用中だった際の挙動 (warn / error)
+DeleteOnInUse = "warn"
+
+# [ZIP圧縮] 機能を有効化するか (true/false)
+EnableZipCompression = true
+
+# リネーム後に、リネーム元ファイルと同名の空ファイルを作成するか (true/false)
+# デフォルト: false
+CreateEmptyAfterRename = false
