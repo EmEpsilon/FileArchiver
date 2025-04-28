@@ -75,3 +75,6 @@ EnableZipCompression = true
 # リネーム後に、リネーム元ファイルと同名の空ファイルを作成するか (true/false)
 # デフォルト: false
 CreateEmptyAfterRename = false
+
+# 日付比較の際に許容する分数を指定
+DateComparisonToleranceMinutes = 5

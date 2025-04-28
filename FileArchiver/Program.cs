@@ -49,7 +49,7 @@ namespace FileArchiver
 
         static void Main(string[] args)
         {
-            const string Version = "1.0.0";
+            const string Version = "1.0.1";
 
             if (args.Contains("--version"))
             {
