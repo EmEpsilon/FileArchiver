@@ -27,6 +27,7 @@ namespace FileArchiver
         public string DeleteOnInUse { get; set; } = "warn";
         public bool EnableZipCompression { get; set; } = true;
         public bool CreateEmptyAfterRename { get; set; } = false;
+        public int DateComparisonToleranceMinutes { get; set; } = 5; 
     }
 
     public class Config
@@ -86,7 +87,8 @@ namespace FileArchiver
                     "DeleteDaysOld = 60" + Environment.NewLine +
                     "DeleteOnInUse = \"warn\"" + Environment.NewLine +
                     "EnableZipCompression = true" + Environment.NewLine +
-                    "CreateEmptyAfterRename = false" + Environment.NewLine
+                    "CreateEmptyAfterRename = false" + Environment.NewLine +
+                    "DateComparisonToleranceMinutes = 5" + Environment.NewLine
                 );
                 Console.WriteLine($"テンプレート {targetPath} を作成しました。");
                 return;
@@ -202,6 +204,11 @@ namespace FileArchiver
                     Log("error", "EnableZipCompression が true の場合、DaysOld は 0 より大きくなければなりません", ConsoleColor.Red);
                     continue;
                 }
+                if (folder.DateComparisonToleranceMinutes < 0)
+                {
+                    Log("error", "DateComparisonToleranceMinutes は 0 以上でなければなりません", ConsoleColor.Red);
+                    continue;
+                }
                 if (folder.EnableZipCompression && folder.DaysOld > 0)
                 {
                     Log("info", "ZIP圧縮を有効にしています", ConsoleColor.DarkMagenta);
@@ -268,7 +275,7 @@ namespace FileArchiver
                     Log("debug", $"ファイル更新日: {File.GetLastWriteTime(file):yyyy-MM-dd HH:mm:ss}", ConsoleColor.Cyan);
 
                     // Rename
-                    if (!isZip && folder.EnableRename && created <= now.AddDays(-folder.RenameDaysOld) && !Regex.IsMatch(Path.GetFileNameWithoutExtension(file), "_\\d{8,14}$"))
+                    if (!isZip && folder.EnableRename && created <= now.AddDays(-folder.RenameDaysOld).AddMinutes(folder.DateComparisonToleranceMinutes) && !Regex.IsMatch(Path.GetFileNameWithoutExtension(file), "_\\d{8,14}$"))
                     {
                         string newName = Path.Combine(Path.GetDirectoryName(file), Path.GetFileNameWithoutExtension(file) + "_" + now.ToString("yyyyMMddHHmmss") + Path.GetExtension(file));
                         try
@@ -314,7 +321,7 @@ namespace FileArchiver
                     }
 
                     // Compress
-                    if (folder.EnableZipCompression && !isZip && File.GetLastWriteTime(file) <= now.AddDays(-folder.DaysOld))
+                    if (folder.EnableZipCompression && !isZip && File.GetLastWriteTime(file) <= now.AddDays(-folder.DaysOld).AddMinutes(folder.DateComparisonToleranceMinutes))
                     {
                         string zipPath = Path.Combine(Path.GetDirectoryName(file), Path.GetFileName(file) + "_" + now.ToString("yyyyMMddHHmmss") + ".zip");
                         try
@@ -351,7 +358,7 @@ namespace FileArchiver
                     }
 
                     // Delete
-                    if (folder.EnableDelete && created <= now.AddDays(-folder.DeleteDaysOld))
+                    if (folder.EnableDelete && created <= now.AddDays(-folder.DeleteDaysOld).AddMinutes(folder.DateComparisonToleranceMinutes))
                     {
                         try
                         {
@@ -414,6 +421,7 @@ namespace FileArchiver
             Console.WriteLine("    DeleteOnInUse     : 使用中ファイルがあったときの挙動（warn/error）");
             Console.WriteLine("    EnableZipCompression : ZIP圧縮を有効にするか（true/false）");
             Console.WriteLine("    CreateEmptyAfterRename : リネーム後、元ファイル名の空ファイルを作るか（true/false）\n");
+            Console.WriteLine("    DateComparisonToleranceMinutes : 日付比較の際に許容する分数を指定");
 
             Console.WriteLine("【使用例】");
             Console.WriteLine("  FileArchiver.exe");
@@ -533,6 +541,14 @@ namespace FileArchiver
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("  [error] CreateEmptyAfterRename は EnableRename が true の場合のみ有効です");
+                    Console.ResetColor();
+                    hasError = true;
+                }
+
+                if (folder.DateComparisonToleranceMinutes < 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("  [error] DateComparisonToleranceMinutes は 0 以上でなければなりません");
                     Console.ResetColor();
                     hasError = true;
                 }
