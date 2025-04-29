@@ -254,6 +254,8 @@ namespace FileArchiver
                     Log("info", $"ZIP圧縮有効: {folder.EnableZipCompression}", ConsoleColor.DarkMagenta);
                 if (folder.DaysOld > 0)
                     Log("info", $"圧縮対象: {folder.DaysOld} 日以上前のファイル", ConsoleColor.DarkMagenta);
+                if (folder.DateComparisonToleranceMinutes > 0)
+                    Log("info", $"日付比較の際に許容する分数: {folder.DateComparisonToleranceMinutes} 分", ConsoleColor.DarkMagenta);
 
 
                 var option = folder.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
