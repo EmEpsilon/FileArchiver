@@ -5,17 +5,20 @@ using System.IO.Compression;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Text;
 using Nett;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 
 namespace FileArchiver
 {
     public class FolderConfig
     {
-        public string Directory { get; set; }
+        public string Directory { get; set; } = string.Empty;
         public int DaysOld { get; set; } = 0;
         public string IncludePattern { get; set; } = ".*";
-        public string ExcludePattern { get; set; } = "";
+        public string ExcludePattern { get; set; } = string.Empty;
         public bool Recursive { get; set; } = false;
 
         public bool EnableRename { get; set; } = false;
@@ -34,7 +37,8 @@ namespace FileArchiver
     {
         public bool EnableEventLog { get; set; } = false; // Windowsイベントログ出力を有効にするか
         public string EventLogLevel { get; set; } = "warn"; // debug, info, warn, error から選択
-                                                            // 修正: C# 7.3 では target-typed オブジェクトの作成がサポートされていないため、明示的な型指定を追加します。
+        public string NonWindowsEventLogPath { get; set; } = "eventlog.txt"; // 非Windowsでの疑似イベントログ出力先
+        public string NonWindowsEventLogTarget { get; set; } = "both"; // file / syslog / both
         public List<FolderConfig> FolderSettings { get; set; } = new List<FolderConfig>();
         public string LogFilePath { get; set; } = "log.txt";
         public string ZipFileNameFormat { get; set; } = "archive_{0:yyyyMMddHHmmss}.zip";
@@ -44,7 +48,7 @@ namespace FileArchiver
 
     class FileArchiverApp
     {
-        static Config config;
+        static Config config = new();
         static bool isDryRun = false;
 
         static void Main(string[] args)
@@ -74,6 +78,8 @@ namespace FileArchiver
                     "ZipFileNameFormat = \"archive_{0:yyyyMMddHHmmss}.zip\"" + Environment.NewLine +
                     "EnableEventLog = false" + Environment.NewLine +
                     "EventLogLevel = \"warn\"" + Environment.NewLine +
+                    "NonWindowsEventLogPath = \"eventlog.txt\"" + Environment.NewLine +
+                    "NonWindowsEventLogTarget = \"both\"" + Environment.NewLine +
                     "[[FolderSettings]]" + Environment.NewLine +
                     "Directory = \"C:/data\"" + Environment.NewLine +
                     "DaysOld = 30" + Environment.NewLine +
@@ -121,8 +127,9 @@ namespace FileArchiver
             }
 
             isDryRun = args.Contains("--dry-run");
-            if (!Directory.Exists(Path.GetDirectoryName(config.LogFilePath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(config.LogFilePath));
+            var logDir = Path.GetDirectoryName(config.LogFilePath);
+            if (!string.IsNullOrWhiteSpace(logDir) && !Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
 
             // show config
             Log("info", "=== FileArchiver 設定内容 ===", ConsoleColor.Magenta);
@@ -131,6 +138,8 @@ namespace FileArchiver
             Log("info", $"MaxLogSizeBytes: {config.MaxLogSizeBytes}", ConsoleColor.Magenta);
             Log("info", $"EnableEventLog: {config.EnableEventLog}", ConsoleColor.Magenta);
             Log("info", $"EventLogLevel: {config.EventLogLevel}", ConsoleColor.Magenta);
+            Log("info", $"NonWindowsEventLogPath: {config.NonWindowsEventLogPath}", ConsoleColor.Magenta);
+            Log("info", $"NonWindowsEventLogTarget: {config.NonWindowsEventLogTarget}", ConsoleColor.Magenta);
             Log("info", $"ZipFileNameFormat: {config.ZipFileNameFormat}", ConsoleColor.Magenta);
             Log("info", "=== FileArchiver 処理開始 ===", ConsoleColor.Magenta);
             Log("info", $"[dry-run] {isDryRun}", ConsoleColor.Magenta);
@@ -142,7 +151,7 @@ namespace FileArchiver
             Log("info", $"[working-directory] {Environment.CurrentDirectory}", ConsoleColor.Magenta);
             Log("info", $"[process-id] {Process.GetCurrentProcess().Id}", ConsoleColor.Magenta);
             Log("info", $"[process-name] {Process.GetCurrentProcess().ProcessName}", ConsoleColor.Magenta);
-            Log("info", $"[process-path] {Process.GetCurrentProcess().MainModule.FileName}", ConsoleColor.Magenta);
+            Log("info", $"[process-path] {Environment.ProcessPath}", ConsoleColor.Magenta);
             Log("info", $"[process-args] {string.Join(" ", args)}", ConsoleColor.Magenta);
             
             foreach (var folder in config.FolderSettings)
@@ -597,19 +606,18 @@ namespace FileArchiver
             RotateLogIfNeeded();
             File.AppendAllText(config.LogFilePath, msg + Environment.NewLine);
 
-            // Windows イベントログ出力
+            // Windows イベントログ / 非Windows疑似イベントログ出力
             if (config.EnableEventLog &&
                 (config.EventLogLevel == "debug" ||
                  (config.EventLogLevel == "info" && type != "debug") ||
                  (config.EventLogLevel == "warn" && (type == "warn" || type == "error")) ||
                  (config.EventLogLevel == "error" && type == "error")))
             {
-                try
+                if (OperatingSystem.IsWindows())
                 {
-
                     try
                     {
-                        using (var eventLog = new System.Diagnostics.EventLog("Application"))
+                        using (var eventLog = new EventLog("Application"))
                         {
                             eventLog.Source = "FileArchiver";
                             EventLogEntryType logType;
@@ -634,11 +642,58 @@ namespace FileArchiver
                         Console.WriteLine($"[warn] イベントログへの出力に失敗: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    // イベントログへの書き込みに失敗しても処理は継続
-                    Console.WriteLine($"[warn] イベントログへの出力に失敗: {ex.Message}");
+                    try
+                    {
+                        var target = (config.NonWindowsEventLogTarget ?? "both").ToLowerInvariant();
+                        if (target == "file" || target == "both")
+                            WriteNonWindowsEventLogToFile(msg);
+                        if (target == "syslog" || target == "both")
+                            WriteNonWindowsEventLogToSyslog(type, message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[warn] 非Windowsイベントログへの出力に失敗: {ex.Message}");
+                    }
                 }
+            }
+        }
+
+        static void WriteNonWindowsEventLogToFile(string msg)
+        {
+            var eventLogPath = string.IsNullOrWhiteSpace(config.NonWindowsEventLogPath)
+                ? "eventlog.txt"
+                : config.NonWindowsEventLogPath;
+            var eventLogDir = Path.GetDirectoryName(eventLogPath);
+            if (!string.IsNullOrWhiteSpace(eventLogDir) && !Directory.Exists(eventLogDir))
+                Directory.CreateDirectory(eventLogDir);
+            File.AppendAllText(eventLogPath, msg + Environment.NewLine);
+        }
+
+        static void WriteNonWindowsEventLogToSyslog(string type, string message)
+        {
+            var facilityUser = 1 << 3;
+            var severity = type == "error" ? 3 : type == "warn" ? 4 : 6;
+            var priority = facilityUser + severity;
+            var payload = $"<{priority}>FileArchiver: {message}";
+            var bytes = Encoding.UTF8.GetBytes(payload);
+
+            if (File.Exists("/dev/log"))
+            {
+                using var socket = new Socket(AddressFamily.Unix, SocketType.Dgram, ProtocolType.Unspecified);
+                var endpoint = new UnixDomainSocketEndPoint("/dev/log");
+                socket.Connect(endpoint);
+                socket.Send(bytes);
+                return;
+            }
+
+            if (File.Exists("/var/run/syslog"))
+            {
+                using var socket = new Socket(AddressFamily.Unix, SocketType.Dgram, ProtocolType.Unspecified);
+                var endpoint = new UnixDomainSocketEndPoint("/var/run/syslog");
+                socket.Connect(endpoint);
+                socket.Send(bytes);
             }
         }
 
