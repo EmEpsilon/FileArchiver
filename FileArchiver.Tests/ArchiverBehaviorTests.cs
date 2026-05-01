@@ -209,6 +209,120 @@ DateComparisonToleranceMinutes = -1
         r.Output.Should().Contain("[error]");
     }
 
+    [Fact]
+    public void Execution_CreatesEmptyFileAfterRename_WhenOptionEnabled()
+    {
+        using var wd = new TempDir();
+        var dataDir = System.IO.Path.Combine(wd.Path, "data");
+        Directory.CreateDirectory(dataDir);
+        var target = System.IO.Path.Combine(dataDir, "empty_after.log");
+        File.WriteAllText(target, "payload");
+        File.SetCreationTime(target, DateTime.Now.AddDays(-40));
+
+        File.WriteAllText(System.IO.Path.Combine(wd.Path, "config.toml"), $$"""
+LogFilePath = "{{System.IO.Path.Combine(wd.Path, "log.txt").Replace("\\", "/")}}"
+LogLevel = "debug"
+MaxLogSizeBytes = 1048576
+EnableEventLog = false
+EventLogLevel = "warn"
+
+[[FolderSettings]]
+Directory = "{{dataDir.Replace("\\", "/")}}"
+DaysOld = 999
+IncludePattern = "\\.log$"
+ExcludePattern = ""
+Recursive = false
+EnableRename = true
+RenameDaysOld = 1
+RenameOnInUse = "warn"
+EnableDelete = false
+EnableZipCompression = false
+CreateEmptyAfterRename = true
+""");
+
+        var r = RunApp(wd.Path);
+        r.ExitCode.Should().Be(0);
+        File.Exists(target).Should().BeTrue();
+        new FileInfo(target).Length.Should().Be(0);
+        Directory.GetFiles(dataDir, "empty_after_*.log").Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void Execution_OnlyProcessesIncludedFiles_AndSkipsExcludedFiles()
+    {
+        using var wd = new TempDir();
+        var dataDir = System.IO.Path.Combine(wd.Path, "data");
+        Directory.CreateDirectory(dataDir);
+        var includeTarget = System.IO.Path.Combine(dataDir, "included.log");
+        var excludeTarget = System.IO.Path.Combine(dataDir, "temp_excluded.log");
+        File.WriteAllText(includeTarget, "payload");
+        File.WriteAllText(excludeTarget, "payload");
+        File.SetLastWriteTime(includeTarget, DateTime.Now.AddDays(-40));
+        File.SetLastWriteTime(excludeTarget, DateTime.Now.AddDays(-40));
+
+        File.WriteAllText(System.IO.Path.Combine(wd.Path, "config.toml"), $$"""
+LogFilePath = "{{System.IO.Path.Combine(wd.Path, "log.txt").Replace("\\", "/")}}"
+LogLevel = "debug"
+MaxLogSizeBytes = 1048576
+EnableEventLog = false
+EventLogLevel = "warn"
+
+[[FolderSettings]]
+Directory = "{{dataDir.Replace("\\", "/")}}"
+DaysOld = 1
+IncludePattern = "\\.log$"
+ExcludePattern = "temp_excluded\\.log$"
+Recursive = false
+EnableRename = false
+EnableDelete = false
+EnableZipCompression = true
+""");
+
+        var r = RunApp(wd.Path);
+        r.ExitCode.Should().Be(0);
+        File.Exists(excludeTarget).Should().BeTrue();
+        File.Exists(includeTarget).Should().BeFalse();
+        Directory.GetFiles(dataDir, "*.zip").Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void DryRun_DoesNotRenameOrDeleteFiles()
+    {
+        using var wd = new TempDir();
+        var dataDir = System.IO.Path.Combine(wd.Path, "data");
+        Directory.CreateDirectory(dataDir);
+        var target = System.IO.Path.Combine(dataDir, "dryrun.log");
+        File.WriteAllText(target, "payload");
+        File.SetCreationTime(target, DateTime.Now.AddDays(-40));
+        File.SetLastWriteTime(target, DateTime.Now.AddDays(-40));
+
+        File.WriteAllText(System.IO.Path.Combine(wd.Path, "config.toml"), $$"""
+LogFilePath = "{{System.IO.Path.Combine(wd.Path, "log.txt").Replace("\\", "/")}}"
+LogLevel = "debug"
+MaxLogSizeBytes = 1048576
+EnableEventLog = false
+EventLogLevel = "warn"
+
+[[FolderSettings]]
+Directory = "{{dataDir.Replace("\\", "/")}}"
+DaysOld = 1
+IncludePattern = "\\.log$"
+ExcludePattern = ""
+Recursive = false
+EnableRename = true
+RenameDaysOld = 1
+EnableDelete = true
+DeleteDaysOld = 1
+EnableZipCompression = true
+""");
+
+        var r = RunApp(wd.Path, "--dry-run");
+        r.ExitCode.Should().Be(0);
+        File.Exists(target).Should().BeTrue();
+        Directory.GetFiles(dataDir, "*.zip").Should().BeEmpty();
+        Directory.GetFiles(dataDir, "dryrun_*.log").Should().BeEmpty();
+    }
+
     private static (int ExitCode, string Output) RunApp(string workingDir, params string[] args)
     {
         var projectPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "../../../../FileArchiver/FileArchiver.csproj"));
