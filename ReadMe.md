@@ -1,139 +1,108 @@
 # FileArchiver
 
-‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÍAw’è‚µ‚½ƒfƒBƒŒƒNƒgƒŠ“à‚Ìƒtƒ@ƒCƒ‹‚ğ©“®“I‚É Zip ˆ³k‚µAŒ³ƒtƒ@ƒCƒ‹‚ğíœ‚·‚éƒc[ƒ‹‚Å‚·B
-ˆê’è“ú”ˆÈãŒo‰ß‚µ‚½ƒtƒ@ƒCƒ‹‚¾‚¯‚ğ‘ÎÛ‚Æ‚·‚é‚±‚Æ‚ÅA•s—v‚ÈŒÃ‚¢ƒtƒ@ƒCƒ‹‚ğƒA[ƒJƒCƒu‚µAƒfƒBƒXƒN—Ìˆæ‚ğŒø—¦“I‚É—˜—p‚Å‚«‚Ü‚·B
+FileArchiver ã¯ã€æŒ‡å®šãƒ•ã‚©ãƒ«ãƒ€é…ä¸‹ã®å¤ã„ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¡ä»¶ã«å¿œã˜ã¦ **ãƒªãƒãƒ¼ãƒ  / ZIPåœ§ç¸® / å‰Šé™¤** ã™ã‚‹ãƒãƒƒãƒå‘ã‘ãƒ„ãƒ¼ãƒ«ã§ã™ã€‚  
+`.NET 10` å¯¾å¿œã€ã‚¯ãƒ­ã‚¹ãƒ—ãƒ©ãƒƒãƒˆãƒ•ã‚©ãƒ¼ãƒ å¯¾å¿œï¼ˆWindows / Linux / macOSï¼‰ã§ã™ã€‚
 
-## å‚È‹@”\
+## ä¸»ãªæ©Ÿèƒ½
 
-1. **Zip ˆ³k**
+- ZIP åœ§ç¸®ï¼ˆå…ƒãƒ•ã‚¡ã‚¤ãƒ«å‰Šé™¤ã‚’å«ã‚€ï¼‰
+- ãƒªãƒãƒ¼ãƒ ï¼ˆã‚¿ã‚¤ãƒ ã‚¹ã‚¿ãƒ³ãƒ—ä»˜ä¸ï¼‰
+- å‰Šé™¤
+- Dry-runï¼ˆå®Ÿéš›ã®å¤‰æ›´ãªã—ã§å¯¾è±¡ç¢ºèªï¼‰
+- è¨­å®šãƒã‚§ãƒƒã‚¯ï¼ˆ`--check`ï¼‰
+- ãƒ­ã‚°ãƒ­ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³
+- Windows EventLog å‡ºåŠ›ï¼ˆWindowsï¼‰
+- éWindowsã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°ç›¸å½“å‡ºåŠ›ï¼ˆãƒ•ã‚¡ã‚¤ãƒ« / syslogï¼‰
+- å®Ÿè¡Œã‚µãƒãƒªãƒ¼ JSON å‡ºåŠ›
+- æ˜ç¤ºçš„ãªçµ‚äº†ã‚³ãƒ¼ãƒ‰
 
-   - w’è‚µ‚½“ú” (DaysOld) ‚æ‚è‚àƒtƒ@ƒCƒ‹‚ÌÅIXV“ú‚ªŒÃ‚¢ê‡Aƒtƒ@ƒCƒ‹‚ğ Zip ˆ³k‚µ‚ÄŒ³ƒtƒ@ƒCƒ‹‚ğíœB
-   - ˆ³kæ‚Ì Zip ƒtƒ@ƒCƒ‹–¼‚É‚Íƒ^ƒCƒ€ƒXƒ^ƒ“ƒv (yyyyMMddHHmmss) ‚ª•t‰Á‚³‚êAã‘‚«Õ“Ë‚ğ–h‚¬‚Ü‚·B
+## å¿…è¦ç’°å¢ƒ
 
-2. **ƒhƒ‰ƒCƒ‰ƒ“ (Dry-run)**
+- .NET SDK 10.0 ä»¥ä¸Šï¼ˆé–‹ç™ºãƒ»ãƒ†ã‚¹ãƒˆæ™‚ï¼‰
+- å®Ÿè¡Œç‰©ã¯ self-contained publish ã«ã‚ˆã‚Šãƒ©ãƒ³ã‚¿ã‚¤ãƒ åŒæ¢±å¯èƒ½
 
-   - `--dry-run` ƒIƒvƒVƒ‡ƒ“‚ğw’è‚·‚é‚ÆAÀÛ‚Ìƒtƒ@ƒCƒ‹‘€ì‚Ís‚í‚¸A‚Ç‚Ìƒtƒ@ƒCƒ‹‚ª‘ÎÛ‚È‚Ì‚©‚Ì‚İƒƒOo—ÍB
+## ä½¿ã„æ–¹
 
-3. **ƒƒOŠÇ—‚Æƒ[ƒe[ƒVƒ‡ƒ“**
+```bash
+# ãƒ˜ãƒ«ãƒ—
+FileArchiver --help
 
-   - w’èƒTƒCƒY (`MaxLogSizeBytes`) ‚ğ’´‚¦‚é‚ÆAƒƒOƒtƒ@ƒCƒ‹‚ª©“®‚Å Zip ˆ³k‚³‚êƒ[ƒe[ƒVƒ‡ƒ“B
+# è¨­å®šãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆä½œæˆ
+FileArchiver --init-config
 
-4. **İ’èƒtƒ@ƒCƒ‹ (config.toml)**
+# è¨­å®šãƒã‚§ãƒƒã‚¯
+FileArchiver --check
 
-   - TOMLŒ`®‚Åİ’è‚ğs‚¢Aˆ³k‘ÎÛ‚Ì“ú”‚âƒtƒHƒ‹ƒ_İ’èAƒƒOo—Íæ‚È‚Ç‚ğ§Œä‰Â”\B
+# Dry-run
+FileArchiver --dry-run
 
-## g‚¢•û
-
-1. **ƒwƒ‹ƒv•\¦**
-
-   ```powershell
-   FileArchiver.exe --help
-   ```
-
-   å—v‚ÈƒIƒvƒVƒ‡ƒ“‚ÆŠÈˆÕà–¾‚ğ•\¦‚µ‚Ü‚·B
-
-2. **config.toml ‚Ì€”õ**
-   “¯‚¶ƒtƒHƒ‹ƒ_‚É `config.toml` ‚ğ—pˆÓ‚µAˆÈ‰º‚Ì‚æ‚¤‚Èİ’è‚ğ‘‚«‚Ü‚·B‚Ü‚½‚Í“Æ©‚É•ÒW‚µ‚Ä‚­‚¾‚³‚¢B
-
-   ```toml
-   LogFilePath = "log.txt"       # ƒƒOƒtƒ@ƒCƒ‹o—Íæ
-   LogLevel = "info"             # ƒƒOo—ÍÚ×“x (debug/info/warn/error)
-   MaxLogSizeBytes = 1048576      # 1MB ‚ÅƒƒOƒ[ƒe[ƒVƒ‡ƒ“
-   ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"  # ˆ³kƒtƒ@ƒCƒ‹‚Ì–¼‘OƒtƒH[ƒ}ƒbƒg
-
-   [[FolderSettings]]
-   Directory = "C:/data"        # ˆ—‘ÎÛƒtƒHƒ‹ƒ_
-   DaysOld = 30                  # 30“úˆÈã‘O‚ÉXV‚³‚ê‚½ƒtƒ@ƒCƒ‹‚ğˆ³k
-   IncludePattern = "\\.log$"   # .logƒtƒ@ƒCƒ‹‚ğ‘ÎÛ
-   ExcludePattern = "^temp"     # temp‚Ån‚Ü‚éƒtƒ@ƒCƒ‹‚ÍœŠO
-   Recursive = true              # ƒTƒuƒtƒHƒ‹ƒ_‚àŠÜ‚ß‚é‚©
-   ```
-
-3. **®‡«ƒ`ƒFƒbƒN**
-
-   ```powershell
-   FileArchiver.exe --check
-   ```
-
-   `config.toml` ‚Ì“à—e‚Æ®‡«‚ğƒ`ƒFƒbƒN‚µAƒGƒ‰[‚âŒx‚ª‚ ‚ê‚Î•\¦‚µ‚Ü‚·B
-
-4. **Dry-run**
-
-   ```powershell
-   FileArchiver.exe --dry-run
-   ```
-
-   ƒtƒ@ƒCƒ‹‘€ì‚Ís‚í‚¸Aˆ——\’èƒtƒ@ƒCƒ‹‚Ì‚İ‚ğƒƒOo—ÍBˆÀ‘S‚ÉƒeƒXƒg‚Å‚«‚Ü‚·B
-
-5. **–{”ÔÀs**
-
-   ```powershell
-   FileArchiver.exe
-   ```
-
-   İ’èƒtƒ@ƒCƒ‹‚É‚µ‚½‚ª‚Á‚ÄAZIPˆ³k‚âíœ‚ğÀ{BÀs“à—e‚ÍƒRƒ“ƒ\[ƒ‹‚Æ `log.txt` ‚Éo—Í‚³‚ê‚Ü‚·B
-
-## ƒIƒvƒVƒ‡ƒ“ˆê——
-
-| ƒIƒvƒVƒ‡ƒ“           | à–¾                                                                        |
-| --------------- | ------------------------------------------------------------------------- |
-| `--help`        | ‚±‚Ìƒwƒ‹ƒv‚ğ•\¦                                                                  |
-| `--check`       | `config.toml` ‚Ì“à—e‚Æ®‡«‚ğƒ`ƒFƒbƒN                                                |
-| `--dry-run`     | ÀÛ‚Ì‘€ì‚ğs‚í‚¸A‚Ç‚Ìƒtƒ@ƒCƒ‹‚ª‘ÎÛ‚É‚È‚é‚©ƒƒOo—Í‚Ì‚İ                                             |
-| `--version`     | ƒo[ƒWƒ‡ƒ“î•ñ‚ğ•\¦                                                                |
-| `--init-config` | ƒeƒ“ƒvƒŒ[ƒg `config.toml` ‚ğì¬Bˆø”‚Åo—Íƒtƒ@ƒCƒ‹–¼‚ğw’è‰Â”\ (—á: `--init-config myconf.toml`) |
-
-## config.toml Ú×İ’è
-
-| €–Ú                     | à–¾                                           |
-| ---------------------- | -------------------------------------------- |
-| **LogFilePath**        | ƒƒOƒtƒ@ƒCƒ‹‚Ì•Û‘¶æƒpƒX                                 |
-| **LogLevel**           | ƒƒOo—Í‚ÌÚ×“xidebug / info / warn / errorj        |
-| **MaxLogSizeBytes**    | ƒƒOƒtƒ@ƒCƒ‹ƒTƒCƒY‚ª‚±‚ê‚ğ’´‚¦‚é‚Æ©“®‚Å ZIP ˆ³k                  |
-| **ZipFileNameFormat**  | ZIP ƒtƒ@ƒCƒ‹–¼‚ÌƒtƒH[ƒ}ƒbƒg (`{0}` ‚É“ú‚ª‘}“ü‚³‚ê‚é)           |
-| **EnableEventLog**     | Windows ƒCƒxƒ“ƒgƒƒO‚Öo—Í‚·‚é‚© (true / false)          |
-| **EventLogLevel**      | ƒCƒxƒ“ƒgƒƒO‚Ö‚Ìo—ÍÅ’áƒŒƒxƒ‹idebug / info / warn / errorj |
-| **[[FolderSettings]]** | •¡”w’è‰ÂBŠeƒtƒHƒ‹ƒ_‚²‚Æ‚É×‚©‚¢İ’è‚ª‰Â”\BˆÈ‰º‚Íå‚Èƒpƒ‰ƒ[ƒ^‚ğ—ñ‹“B        |
-
-### FolderSettings “à‚Ìå‚Èƒpƒ‰ƒ[ƒ^
-
-| ƒpƒ‰ƒ[ƒ^                      | ˆÓ–¡                                          |
-| -------------------------- | ------------------------------------------- |
-| **Directory**              | ‘ÎÛƒtƒHƒ‹ƒ_‚ÌƒpƒXi•K{j                               |
-| **DaysOld**                | ƒtƒ@ƒCƒ‹‚ÌXV“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡‚ÉZIPˆ³k‘ÎÛ                   |
-| **IncludePattern**         | ƒtƒ@ƒCƒ‹–¼‚ğ³‹K•\Œ»‚Åw’è‚µA‘ÎÛ‚ÉŠÜ‚ß‚é                       |
-| **ExcludePattern**         | ƒtƒ@ƒCƒ‹–¼‚ğ³‹K•\Œ»‚Åw’è‚µA‘ÎÛ‚©‚çœŠO‚·‚é                     |
-| **Recursive**              | ƒTƒuƒtƒHƒ‹ƒ_‚àŠÜ‚ß‚é‚© (true/false)                    |
-| **EnableRename**           | ƒŠƒl[ƒ€‹@”\‚ğg‚¤‚© (true/false)                     |
-| **RenameDaysOld**          | ƒtƒ@ƒCƒ‹ì¬“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡ƒŠƒl[ƒ€‘ÎÛ                      |
-| **RenameOnInUse**          | ƒŠƒl[ƒ€Aƒtƒ@ƒCƒ‹ƒƒbƒN‚É‘˜‹ö‚µ‚½ê‡‚Ì‹““® (`warn` or `error`) |
-| **EnableDelete**           | íœ‹@”\‚ğg‚¤‚© (true/false)                       |
-| **DeleteDaysOld**          | ƒtƒ@ƒCƒ‹ì¬“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡íœ‘ÎÛ                        |
-| **DeleteOnInUse**          | íœƒtƒ@ƒCƒ‹ƒƒbƒN‚É‘˜‹ö‚µ‚½ê‡‚Ì‹““® (`warn` or `error`)    |
-| **EnableZipCompression**   | Zipˆ³k‚ğs‚¤‚© (true/false)                      |
-| **CreateEmptyAfterRename** | ƒŠƒl[ƒ€ŒãA“¯–¼‚Ì‹óƒtƒ@ƒCƒ‹‚ğì¬‚·‚é‚© (true/false)           |
-
-## ƒƒOƒŒƒxƒ‹‚É‚Â‚¢‚Ä
-
-- `debug` : ‘SƒƒO (ƒfƒoƒbƒOî•ñ‚ğŠÜ‚Ş)
-- `info`  : debug ‚ğœ‚­ƒƒO
-- `warn`  : Œx (warn) ‚ÆƒGƒ‰[ (error) ‚Ì‚İ
-- `error` : ƒGƒ‰[‚Ì‚İ
-
-## WindowsƒCƒxƒ“ƒgƒƒO‚Ö‚Ìo—Í
-
-`EnableEventLog = true` ‚Éİ’è‚µA`EventLogLevel` ‚ğ“KØ‚Éw’è‚·‚é‚ÆAWindows‚Ì Application ƒCƒxƒ“ƒgƒƒO‚É‚ào—Í‚µ‚Ü‚·B‚½‚¾‚µAˆÈ‰º‚Ìİ’è‚ª•K—v‚Å‚·F
-
-```powershell
-# PowerShell‚È‚Ç‚ÅÀsiŠÇ—ÒŒ ŒÀj
-# "FileArchiver" ‚Æ‚¢‚¤ƒ\[ƒX‚ğ "Application" ƒƒO‚É“o˜^
-New-EventLog -LogName Application -Source "FileArchiver"
+# æœ¬ç•ªå®Ÿè¡Œ
+FileArchiver
 ```
 
-ŠÇ—ÒŒ ŒÀ‚ª•K—v‚Æ‚È‚éê‡‚ª‚ ‚é‚½‚ßAŒ ŒÀİ’è‚âƒ|ƒŠƒV[‚É’ˆÓ‚µ‚Ä‚­‚¾‚³‚¢B
+## çµ‚äº†ã‚³ãƒ¼ãƒ‰
 
-## ‚»‚Ì‘¼
+- `0`: æ­£å¸¸çµ‚äº†
+- `2`: è¨­å®šã‚¨ãƒ©ãƒ¼ï¼ˆ`--check` å¤±æ•—ãªã©ï¼‰
+- `3`: å®Ÿè¡Œæ™‚ã‚¨ãƒ©ãƒ¼ï¼ˆå‡¦ç†å¤±æ•—ä»¶æ•°ã‚ã‚Šï¼‰
 
-- `.NET Framework 4.6.2` ˆÈ~‚Å“®ì‚µ‚Ü‚·B
-- ˆ³kæ‚ÍŒÂ•Êƒtƒ@ƒCƒ‹ (\*.zip) ‚Æ‚È‚èAÕ“Ë‚ğ”ğ‚¯‚é‚½‚ß‚É `_yyyyMMddHHmmss` ‚ğ•t‰Á‚µ‚Ä–½–¼‚µ‚Ü‚·B
-- ‚±‚Ìƒc[ƒ‹‚ÍAChatGPT‚ğ—p‚¢‚Äì¬‚µ‚Ü‚µ‚½B
+## config.toml ä¸»è¦è¨­å®š
+
+```toml
+LogFilePath = "log.txt"
+LogLevel = "info"                 # debug / info / warn / error
+MaxLogSizeBytes = 1048576
+ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"
+
+EnableEventLog = false
+EventLogLevel = "warn"            # debug / info / warn / error
+NonWindowsEventLogPath = "eventlog.txt"
+NonWindowsEventLogTarget = "both" # file / syslog / both
+
+ActionOrder = "rename,compress,delete"
+SummaryOutputPath = "summary.json"
+
+[[FolderSettings]]
+Directory = "./data"
+DaysOld = 30
+IncludePattern = "\\.log$"
+ExcludePattern = "^temp"
+Recursive = true
+
+EnableRename = true
+RenameDaysOld = 30
+RenameOnInUse = "warn"            # warn / error
+
+EnableDelete = true
+DeleteDaysOld = 60
+DeleteOnInUse = "warn"            # warn / error
+
+EnableZipCompression = true
+CreateEmptyAfterRename = false
+DateComparisonToleranceMinutes = 5
+```
+
+## ActionOrder ã«ã¤ã„ã¦
+
+- `ActionOrder` ã¯ `rename,compress,delete` ã®ã¿ã‚’è¨±å¯ã™ã‚‹æ¤œè¨¼å¯¾è±¡ã§ã™ã€‚
+- ä¸æ­£ãªå€¤ã¯ `--check` ã§ã‚¨ãƒ©ãƒ¼ã«ãªã‚Šã¾ã™ã€‚
+
+## å®Ÿè¡Œã‚µãƒãƒªãƒ¼
+
+`SummaryOutputPath` ã«ä»¥ä¸‹ã‚«ã‚¦ãƒ³ã‚¿ã‚’ JSON å‡ºåŠ›ã—ã¾ã™ã€‚
+
+- `Scanned`
+- `Renamed`
+- `Compressed`
+- `Deleted`
+- `Skipped`
+- `Failed`
+
+## ãƒ†ã‚¹ãƒˆ
+
+- ãƒ†ã‚¹ãƒˆã‚³ãƒ¼ãƒ‰: `FileArchiver.Tests/ArchiverBehaviorTests.cs`
+- è©³ç´°ãƒ†ã‚¹ãƒˆä»•æ§˜: `test/TESTCASE.md`
+
+```bash
+dotnet test FileArchiver.sln -v minimal
+```
