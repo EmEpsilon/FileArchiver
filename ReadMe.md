@@ -92,6 +92,93 @@ FileArchiver
 | `DeleteOnInUse` | string | 使用中ファイル時の挙動 (`warn`/`error`) |
 | `DateComparisonToleranceMinutes` | int | 日付比較の許容分 |
 
+#### `[[FolderSettings]]` を複数設定する書き方
+
+`[[FolderSettings]]` ブロックを **必要な数だけ繰り返し** 記述します。  
+各ブロックが 1 つの対象ディレクトリ設定になります。
+
+```toml
+[[FolderSettings]]
+Directory = "./app1-logs"
+DaysOld = 7
+IncludePattern = "\\.log$"
+ExcludePattern = "^temp"
+Recursive = true
+EnableRename = true
+RenameDaysOld = 1
+EnableDelete = true
+DeleteDaysOld = 30
+EnableZipCompression = true
+
+[[FolderSettings]]
+Directory = "./app2-logs"
+DaysOld = 3
+IncludePattern = "\\.txt$"
+ExcludePattern = ""
+Recursive = false
+EnableRename = false
+EnableDelete = false
+EnableZipCompression = true
+```
+
+---
+
+## ファイルローテーションの具体例
+
+### 要件
+
+- 対象ディレクトリ: `./XX`
+- 対象拡張子: `.log`
+- 作成から **1日** 経過でリネーム
+- 更新から **5日** 経過で圧縮
+- 作成から **10日** 経過で削除
+
+### 設定例（そのまま使える形）
+
+```toml
+LogFilePath = "log.txt"
+LogLevel = "info"
+MaxLogSizeBytes = 1048576
+ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"
+
+EnableEventLog = false
+EventLogLevel = "warn"
+NonWindowsEventLogPath = "eventlog.txt"
+NonWindowsEventLogTarget = "file"
+
+ActionOrder = "rename,compress,delete"
+SummaryOutputPath = "summary.json"
+
+[[FolderSettings]]
+Directory = "./XX"
+Recursive = true
+IncludePattern = "\\.log$"
+ExcludePattern = ""
+
+EnableRename = true
+RenameDaysOld = 1
+RenameOnInUse = "warn"
+CreateEmptyAfterRename = false
+
+EnableZipCompression = true
+DaysOld = 5
+
+EnableDelete = true
+DeleteDaysOld = 10
+DeleteOnInUse = "warn"
+
+DateComparisonToleranceMinutes = 5
+```
+
+### この設定で起こるローテーション
+
+1. `./XX` 配下（再帰）で `.log` ファイルを対象にします。
+2. 作成日時が 1 日以上前のファイルは `_yyyyMMddHHmmss` 付きにリネームされます。
+3. 最終更新日時が 5 日以上前のファイルは ZIP 圧縮され、元ファイルは削除されます。
+4. 作成日時が 10 日以上前のファイルは削除されます。
+
+> 補足: 同一実行内では、リネーム・圧縮・削除は `ActionOrder` の文字列順ではなく、現在実装の処理順に従います（設定値は検証対象として使用）。
+
 ### 設定例
 
 ```toml
