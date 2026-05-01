@@ -60,36 +60,36 @@ FileArchiver
 
 ### グローバル設定
 
-| キー | 型 | 説明 |
-|---|---|---|
-| `LogFilePath` | string | 通常ログの出力先 |
-| `LogLevel` | string | `debug` / `info` / `warn` / `error` |
-| `MaxLogSizeBytes` | int | ログローテーション閾値（超過で ZIP 化） |
-| `ZipFileNameFormat` | string | ZIP ファイル名フォーマット（`{0}` は日時） |
-| `EnableEventLog` | bool | イベントログ出力の有効化 |
-| `EventLogLevel` | string | イベントログ出力レベル (`debug/info/warn/error`) |
-| `NonWindowsEventLogPath` | string | 非Windows時のイベントログ相当ファイル |
-| `NonWindowsEventLogTarget` | string | `file` / `syslog` / `both` |
-| `SummaryOutputPath` | string | 実行サマリー JSON 出力先 |
+| キー | 必須 | デフォルト | 未設定時の挙動 / 説明 |
+|---|---|---|---|
+| `LogFilePath` | 任意 | `log.txt` | 通常ログの出力先。未指定時は実行ディレクトリ直下の `log.txt` |
+| `LogLevel` | 任意 | `info` | `debug/info/warn/error`。未指定時は `info` |
+| `MaxLogSizeBytes` | 任意 | `1048576` | ログローテーション閾値（超過で ZIP 化） |
+| `ZipFileNameFormat` | 任意 | `archive_{0:yyyyMMddHHmmss}.zip` | ZIPファイル名フォーマット |
+| `EnableEventLog` | 任意 | `false` | `true` 時にイベントログ出力処理を有効化 |
+| `EventLogLevel` | 任意 | `warn` | イベントログ出力レベル (`debug/info/warn/error`) |
+| `NonWindowsEventLogPath` | 任意 | `eventlog.txt` | 非Windows時のイベントログ相当ファイル出力先 |
+| `NonWindowsEventLogTarget` | 任意 | `both` | `file` / `syslog` / `both` |
+| `SummaryOutputPath` | 任意 | `summary.json` | 実行サマリー JSON 出力先（空文字なら出力しない） |
 
 ### `[[FolderSettings]]`（複数可）
 
-| キー | 型 | 説明 |
-|---|---|---|
-| `Directory` | string | 対象ディレクトリ |
-| `Recursive` | bool | サブディレクトリを含めるか |
-| `IncludePattern` | string | 対象に含める正規表現 |
-| `ExcludePattern` | string | 対象から除外する正規表現 |
-| `DaysOld` | int | 圧縮対象の更新日経過日数 |
-| `EnableZipCompression` | bool | 圧縮機能ON/OFF |
-| `EnableRename` | bool | リネーム機能ON/OFF |
-| `RenameDaysOld` | int | リネーム対象の作成日経過日数 |
-| `RenameOnInUse` | string | 使用中ファイル時の挙動 (`warn`/`error`) |
-| `CreateEmptyAfterRename` | bool | リネーム後に元名の空ファイル作成 |
-| `EnableDelete` | bool | 削除機能ON/OFF |
-| `DeleteDaysOld` | int | 削除対象の作成日経過日数 |
-| `DeleteOnInUse` | string | 使用中ファイル時の挙動 (`warn`/`error`) |
-| `DateComparisonToleranceMinutes` | int | 日付比較の許容分 |
+| キー | 必須 | デフォルト | 未設定時の挙動 / 説明 |
+|---|---|---|---|
+| `Directory` | **必須** | なし | 処理対象ディレクトリ。未指定なら当該ブロックはエラー扱い |
+| `Recursive` | 任意 | `false` | サブディレクトリを含めるか |
+| `IncludePattern` | 任意 | `.*` | 対象に含める正規表現 |
+| `ExcludePattern` | 任意 | `""` (空文字) | 対象から除外する正規表現 |
+| `DaysOld` | 条件付き必須 | `0` | `EnableZipCompression=true` の場合は `>0` 必須 |
+| `EnableZipCompression` | 任意 | `true` | 圧縮機能ON/OFF |
+| `EnableRename` | 任意 | `false` | リネーム機能ON/OFF |
+| `RenameDaysOld` | 条件付き必須 | `30` | `EnableRename=true` の場合は `>0` 必須 |
+| `RenameOnInUse` | 任意 | `warn` | 使用中ファイル時の挙動 (`warn`/`error`) |
+| `CreateEmptyAfterRename` | 任意 | `false` | リネーム後に元名の空ファイル作成 |
+| `EnableDelete` | 任意 | `false` | 削除機能ON/OFF |
+| `DeleteDaysOld` | 条件付き必須 | `60` | `EnableDelete=true` の場合は `>0` 必須 |
+| `DeleteOnInUse` | 任意 | `warn` | 使用中ファイル時の挙動 (`warn`/`error`) |
+| `DateComparisonToleranceMinutes` | 任意 | `5` | 日付比較の許容分（分） |
 
 #### `[[FolderSettings]]` を複数設定する書き方
 

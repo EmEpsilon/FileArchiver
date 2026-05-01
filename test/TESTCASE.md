@@ -22,6 +22,7 @@
 | TC-008 | リネーム: CreateEmptyAfterRename=true で空ファイルを再作成する | 単機能 | ログ出力先維持運用 | `CreateEmptyAfterRename=true` | 元ファイル名で0バイト再作成 |
 | TC-009 | フィルタ: Include/Exclude の条件どおりに処理対象を選別する | 単機能 | 混在フォルダ運用 | Include/Exclude 正規表現 | includeのみ処理 |
 | TC-010 | Dry-run: リネーム/削除/圧縮を実行しない | 実運用想定 | 本番投入前の総合確認 | `--dry-run` + 複数機能ON | すべて未変更 |
+| TC-011 | デフォルト設定: FolderSettings の任意項目省略時は既定値で動作する | 単機能 | 最小設定運用 | `Directory` と `EnableZipCompression=false` のみ指定 | `Recursive=false` 既定値適用 / サブディレクトリ未処理 |
 
 ## 3. 実運用想定シナリオの補足
 

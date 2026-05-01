@@ -323,6 +323,35 @@ EnableZipCompression = true
         Directory.GetFiles(dataDir, "dryrun_*.log").Should().BeEmpty();
     }
 
+    [Fact(DisplayName = "デフォルト設定: FolderSettings の任意項目省略時は既定値で動作する")]
+    public void FolderSettingDefaults_AreUsed_WhenOptionalSettingsAreOmitted()
+    {
+        using var wd = new TempDir();
+        var dataDir = System.IO.Path.Combine(wd.Path, "data");
+        Directory.CreateDirectory(dataDir);
+        var topFile = System.IO.Path.Combine(dataDir, "a.log");
+        var subDir = System.IO.Path.Combine(dataDir, "sub");
+        Directory.CreateDirectory(subDir);
+        var subFile = System.IO.Path.Combine(subDir, "b.log");
+        File.WriteAllText(topFile, "payload");
+        File.WriteAllText(subFile, "payload");
+
+        File.WriteAllText(System.IO.Path.Combine(wd.Path, "config.toml"), """
+LogFilePath = "log.txt"
+SummaryOutputPath = "summary.json"
+
+[[FolderSettings]]
+Directory = "./data"
+EnableZipCompression = false
+""");
+
+        var r = RunApp(wd.Path);
+        r.ExitCode.Should().Be(0);
+        // Recursive のデフォルト false により、サブディレクトリは処理対象外で残る
+        File.Exists(subFile).Should().BeTrue();
+        File.Exists(topFile).Should().BeTrue();
+    }
+
     private static (int ExitCode, string Output) RunApp(string workingDir, params string[] args)
     {
         var projectPath = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "../../../../FileArchiver/FileArchiver.csproj"));
