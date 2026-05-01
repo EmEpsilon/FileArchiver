@@ -44,12 +44,29 @@ namespace FileArchiver
         public string ZipFileNameFormat { get; set; } = "archive_{0:yyyyMMddHHmmss}.zip";
         public string LogLevel { get; set; } = "info";
         public int MaxLogSizeBytes { get; set; } = 1024 * 1024;
+        public string ActionOrder { get; set; } = "rename,compress,delete";
+        public string SummaryOutputPath { get; set; } = "summary.json";
+    }
+
+    public class ExecutionSummary
+    {
+        public int Scanned { get; set; }
+        public int Renamed { get; set; }
+        public int Compressed { get; set; }
+        public int Deleted { get; set; }
+        public int Skipped { get; set; }
+        public int Failed { get; set; }
     }
 
     class FileArchiverApp
     {
         static Config config = new();
         static bool isDryRun = false;
+        static readonly ExecutionSummary summary = new();
+
+        const int ExitSuccess = 0;
+        const int ExitConfigError = 2;
+        const int ExitRuntimeError = 3;
 
         static void Main(string[] args)
         {
@@ -80,6 +97,8 @@ namespace FileArchiver
                     "EventLogLevel = \"warn\"" + Environment.NewLine +
                     "NonWindowsEventLogPath = \"eventlog.txt\"" + Environment.NewLine +
                     "NonWindowsEventLogTarget = \"both\"" + Environment.NewLine +
+                    "ActionOrder = \"rename,compress,delete\"" + Environment.NewLine +
+                    "SummaryOutputPath = \"summary.json\"" + Environment.NewLine +
                     "[[FolderSettings]]" + Environment.NewLine +
                     "Directory = \"C:/data\"" + Environment.NewLine +
                     "DaysOld = 30" + Environment.NewLine +
@@ -122,7 +141,7 @@ namespace FileArchiver
 
             if (args.Contains("--check"))
             {
-                CheckConfig();
+                Environment.ExitCode = CheckConfig() ? ExitSuccess : ExitConfigError;
                 return;
             }
 
@@ -141,6 +160,8 @@ namespace FileArchiver
             Log("info", $"NonWindowsEventLogPath: {config.NonWindowsEventLogPath}", ConsoleColor.Magenta);
             Log("info", $"NonWindowsEventLogTarget: {config.NonWindowsEventLogTarget}", ConsoleColor.Magenta);
             Log("info", $"ZipFileNameFormat: {config.ZipFileNameFormat}", ConsoleColor.Magenta);
+            Log("info", $"ActionOrder: {config.ActionOrder}", ConsoleColor.Magenta);
+            Log("info", $"SummaryOutputPath: {config.SummaryOutputPath}", ConsoleColor.Magenta);
             Log("info", "=== FileArchiver 処理開始 ===", ConsoleColor.Magenta);
             Log("info", $"[dry-run] {isDryRun}", ConsoleColor.Magenta);
             Log("info", $"[version] {Version}", ConsoleColor.Magenta);
@@ -275,6 +296,7 @@ namespace FileArchiver
 
                 foreach (var file in files)
                 {
+                    summary.Scanned++;
                     Log("debug", $"処理対象(ファイル): {file}", ConsoleColor.Cyan);
 
                     bool isZip = Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase);
@@ -297,6 +319,7 @@ namespace FileArchiver
                             {
                                 File.Move(file, newName);
                                 Log("info", $"リネーム完了: {file} → {newName}", ConsoleColor.Blue);
+                                summary.Renamed++;
                                 if (folder.CreateEmptyAfterRename)
                                 {
                                     try
@@ -323,12 +346,14 @@ namespace FileArchiver
                         {
                             string level = folder.RenameOnInUse == "error" ? "error" : "warn";
                             Log(level, $"リネーム失敗（使用中）: {file} ({ex.Message})", level == "error" ? ConsoleColor.Red : ConsoleColor.Yellow);
+                            summary.Failed++;
                             continue;
                         }
                     }
                     else
                     {
                         Log("debug", $"リネームスキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
 
                     // Compress
@@ -354,18 +379,21 @@ namespace FileArchiver
                                 }
                                 File.Delete(file);
                                 Log("info", $"圧縮削除完了: {file} → {zipPath}", ConsoleColor.Green);
+                                summary.Compressed++;
                             }
                             continue;
                         }
                         catch (Exception ex)
                         {
                             Log("warn", $"圧縮失敗: {file} ({ex.Message})", ConsoleColor.Yellow);
+                            summary.Failed++;
                             continue;
                         }
                     }
                     else
                     {
                         Log("debug", $"圧縮スキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
 
                     // Delete
@@ -379,20 +407,26 @@ namespace FileArchiver
                             {
                                 File.Delete(file);
                                 Log("info", $"削除完了: {file}", ConsoleColor.DarkRed);
+                                summary.Deleted++;
                             }
                         }
                         catch (IOException ex)
                         {
                             string level = folder.DeleteOnInUse == "error" ? "error" : "warn";
                             Log(level, $"削除失敗（使用中）: {file} ({ex.Message})", level == "error" ? ConsoleColor.Red : ConsoleColor.Yellow);
+                            summary.Failed++;
                         }
                     }
                     else
                     {
                         Log("debug", $"削除スキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
                 }
             }
+            WriteSummary();
+            Log("info", $"[summary] scanned={summary.Scanned}, renamed={summary.Renamed}, compressed={summary.Compressed}, deleted={summary.Deleted}, skipped={summary.Skipped}, failed={summary.Failed}", ConsoleColor.Magenta);
+            Environment.ExitCode = summary.Failed > 0 ? ExitRuntimeError : ExitSuccess;
             Log("info", "=== FileArchiver 処理完了 ===", ConsoleColor.Magenta);
         }
 
@@ -441,7 +475,7 @@ namespace FileArchiver
             Console.WriteLine("    → 実際には操作せず、現在の設定でどのファイルが対象になるか確認できます。");
         }
 
-        static void CheckConfig()
+        static bool CheckConfig()
         {
             Console.WriteLine("[CHECK] 設定ファイルの整合性チェックを開始します");
 
@@ -467,6 +501,19 @@ namespace FileArchiver
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("[error] MaxLogSizeBytes は 0 より大きくある必要があります");
+                Console.ResetColor();
+                hasError = true;
+            }
+
+            var allowedActions = new[] { "rename", "compress", "delete" };
+            var requestedActions = (config.ActionOrder ?? string.Empty)
+                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim().ToLowerInvariant())
+                .ToArray();
+            if (requestedActions.Length == 0 || requestedActions.Any(x => !allowedActions.Contains(x)))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"[error] ActionOrder の値が不正です: {config.ActionOrder}");
                 Console.ResetColor();
                 hasError = true;
             }
@@ -573,6 +620,7 @@ namespace FileArchiver
                 Console.WriteLine("すべての設定が正しく構成されています。");
                 Console.ResetColor();
             }
+            return !hasError;
         }
 
         static void Log(string type, string message, ConsoleColor color)
@@ -694,6 +742,25 @@ namespace FileArchiver
                 var endpoint = new UnixDomainSocketEndPoint("/var/run/syslog");
                 socket.Connect(endpoint);
                 socket.Send(bytes);
+            }
+        }
+
+
+        static void WriteSummary()
+        {
+            if (string.IsNullOrWhiteSpace(config.SummaryOutputPath)) return;
+            try
+            {
+                var summaryPath = config.SummaryOutputPath;
+                var dir = Path.GetDirectoryName(summaryPath);
+                if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(summaryPath, json);
+            }
+            catch (Exception ex)
+            {
+                Log("warn", $"サマリー出力に失敗: {ex.Message}", ConsoleColor.Yellow);
             }
         }
 
