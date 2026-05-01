@@ -44,7 +44,6 @@ namespace FileArchiver
         public string ZipFileNameFormat { get; set; } = "archive_{0:yyyyMMddHHmmss}.zip";
         public string LogLevel { get; set; } = "info";
         public int MaxLogSizeBytes { get; set; } = 1024 * 1024;
-        public string ActionOrder { get; set; } = "rename,compress,delete";
         public string SummaryOutputPath { get; set; } = "summary.json";
     }
 
@@ -97,7 +96,6 @@ namespace FileArchiver
                     "EventLogLevel = \"warn\"" + Environment.NewLine +
                     "NonWindowsEventLogPath = \"eventlog.txt\"" + Environment.NewLine +
                     "NonWindowsEventLogTarget = \"both\"" + Environment.NewLine +
-                    "ActionOrder = \"rename,compress,delete\"" + Environment.NewLine +
                     "SummaryOutputPath = \"summary.json\"" + Environment.NewLine +
                     "[[FolderSettings]]" + Environment.NewLine +
                     "Directory = \"C:/data\"" + Environment.NewLine +
@@ -160,7 +158,6 @@ namespace FileArchiver
             Log("info", $"NonWindowsEventLogPath: {config.NonWindowsEventLogPath}", ConsoleColor.Magenta);
             Log("info", $"NonWindowsEventLogTarget: {config.NonWindowsEventLogTarget}", ConsoleColor.Magenta);
             Log("info", $"ZipFileNameFormat: {config.ZipFileNameFormat}", ConsoleColor.Magenta);
-            Log("info", $"ActionOrder: {config.ActionOrder}", ConsoleColor.Magenta);
             Log("info", $"SummaryOutputPath: {config.SummaryOutputPath}", ConsoleColor.Magenta);
             Log("info", "=== FileArchiver 処理開始 ===", ConsoleColor.Magenta);
             Log("info", $"[dry-run] {isDryRun}", ConsoleColor.Magenta);
@@ -501,19 +498,6 @@ namespace FileArchiver
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("[error] MaxLogSizeBytes は 0 より大きくある必要があります");
-                Console.ResetColor();
-                hasError = true;
-            }
-
-            var allowedActions = new[] { "rename", "compress", "delete" };
-            var requestedActions = (config.ActionOrder ?? string.Empty)
-                .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Trim().ToLowerInvariant())
-                .ToArray();
-            if (requestedActions.Length == 0 || requestedActions.Any(x => !allowedActions.Contains(x)))
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"[error] ActionOrder の値が不正です: {config.ActionOrder}");
                 Console.ResetColor();
                 hasError = true;
             }

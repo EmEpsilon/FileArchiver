@@ -70,7 +70,6 @@ FileArchiver
 | `EventLogLevel` | string | イベントログ出力レベル (`debug/info/warn/error`) |
 | `NonWindowsEventLogPath` | string | 非Windows時のイベントログ相当ファイル |
 | `NonWindowsEventLogTarget` | string | `file` / `syslog` / `both` |
-| `ActionOrder` | string | 検証対象。許容値: `rename,compress,delete`（順序文字列） |
 | `SummaryOutputPath` | string | 実行サマリー JSON 出力先 |
 
 ### `[[FolderSettings]]`（複数可）
@@ -146,7 +145,6 @@ EventLogLevel = "warn"
 NonWindowsEventLogPath = "eventlog.txt"
 NonWindowsEventLogTarget = "file"
 
-ActionOrder = "rename,compress,delete"
 SummaryOutputPath = "summary.json"
 
 [[FolderSettings]]
@@ -176,43 +174,6 @@ DateComparisonToleranceMinutes = 5
 2. 作成日時が 1 日以上前のファイルは `_yyyyMMddHHmmss` 付きにリネームされます。
 3. 最終更新日時が 5 日以上前のファイルは ZIP 圧縮され、元ファイルは削除されます。
 4. 作成日時が 10 日以上前のファイルは削除されます。
-
-> 補足: 同一実行内では、リネーム・圧縮・削除は `ActionOrder` の文字列順ではなく、現在実装の処理順に従います（設定値は検証対象として使用）。
-
-### 設定例
-
-```toml
-LogFilePath = "log.txt"
-LogLevel = "info"
-MaxLogSizeBytes = 1048576
-ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"
-
-EnableEventLog = false
-EventLogLevel = "warn"
-NonWindowsEventLogPath = "eventlog.txt"
-NonWindowsEventLogTarget = "both"
-
-ActionOrder = "rename,compress,delete"
-SummaryOutputPath = "summary.json"
-
-[[FolderSettings]]
-Directory = "./data"
-DaysOld = 30
-IncludePattern = "\\.log$"
-ExcludePattern = "^temp"
-Recursive = true
-EnableRename = true
-RenameDaysOld = 30
-RenameOnInUse = "warn"
-EnableDelete = true
-DeleteDaysOld = 60
-DeleteOnInUse = "warn"
-EnableZipCompression = true
-CreateEmptyAfterRename = false
-DateComparisonToleranceMinutes = 5
-```
-
----
 
 ## 使用例
 
