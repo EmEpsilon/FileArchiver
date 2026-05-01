@@ -5,17 +5,20 @@ using System.IO.Compression;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Text;
 using Nett;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 
 namespace FileArchiver
 {
     public class FolderConfig
     {
-        public string Directory { get; set; }
+        public string Directory { get; set; } = string.Empty;
         public int DaysOld { get; set; } = 0;
         public string IncludePattern { get; set; } = ".*";
-        public string ExcludePattern { get; set; } = "";
+        public string ExcludePattern { get; set; } = string.Empty;
         public bool Recursive { get; set; } = false;
 
         public bool EnableRename { get; set; } = false;
@@ -34,18 +37,35 @@ namespace FileArchiver
     {
         public bool EnableEventLog { get; set; } = false; // Windowsイベントログ出力を有効にするか
         public string EventLogLevel { get; set; } = "warn"; // debug, info, warn, error から選択
-                                                            // 修正: C# 7.3 では target-typed オブジェクトの作成がサポートされていないため、明示的な型指定を追加します。
+        public string NonWindowsEventLogPath { get; set; } = "eventlog.txt"; // 非Windowsでの疑似イベントログ出力先
+        public string NonWindowsEventLogTarget { get; set; } = "both"; // file / syslog / both
         public List<FolderConfig> FolderSettings { get; set; } = new List<FolderConfig>();
         public string LogFilePath { get; set; } = "log.txt";
         public string ZipFileNameFormat { get; set; } = "archive_{0:yyyyMMddHHmmss}.zip";
         public string LogLevel { get; set; } = "info";
         public int MaxLogSizeBytes { get; set; } = 1024 * 1024;
+        public string SummaryOutputPath { get; set; } = "summary.json";
+    }
+
+    public class ExecutionSummary
+    {
+        public int Scanned { get; set; }
+        public int Renamed { get; set; }
+        public int Compressed { get; set; }
+        public int Deleted { get; set; }
+        public int Skipped { get; set; }
+        public int Failed { get; set; }
     }
 
     class FileArchiverApp
     {
-        static Config config;
+        static Config config = new();
         static bool isDryRun = false;
+        static readonly ExecutionSummary summary = new();
+
+        const int ExitSuccess = 0;
+        const int ExitConfigError = 2;
+        const int ExitRuntimeError = 3;
 
         static void Main(string[] args)
         {
@@ -74,6 +94,9 @@ namespace FileArchiver
                     "ZipFileNameFormat = \"archive_{0:yyyyMMddHHmmss}.zip\"" + Environment.NewLine +
                     "EnableEventLog = false" + Environment.NewLine +
                     "EventLogLevel = \"warn\"" + Environment.NewLine +
+                    "NonWindowsEventLogPath = \"eventlog.txt\"" + Environment.NewLine +
+                    "NonWindowsEventLogTarget = \"both\"" + Environment.NewLine +
+                    "SummaryOutputPath = \"summary.json\"" + Environment.NewLine +
                     "[[FolderSettings]]" + Environment.NewLine +
                     "Directory = \"C:/data\"" + Environment.NewLine +
                     "DaysOld = 30" + Environment.NewLine +
@@ -116,13 +139,14 @@ namespace FileArchiver
 
             if (args.Contains("--check"))
             {
-                CheckConfig();
+                Environment.ExitCode = CheckConfig() ? ExitSuccess : ExitConfigError;
                 return;
             }
 
             isDryRun = args.Contains("--dry-run");
-            if (!Directory.Exists(Path.GetDirectoryName(config.LogFilePath)))
-                Directory.CreateDirectory(Path.GetDirectoryName(config.LogFilePath));
+            var logDir = Path.GetDirectoryName(config.LogFilePath);
+            if (!string.IsNullOrWhiteSpace(logDir) && !Directory.Exists(logDir))
+                Directory.CreateDirectory(logDir);
 
             // show config
             Log("info", "=== FileArchiver 設定内容 ===", ConsoleColor.Magenta);
@@ -131,7 +155,10 @@ namespace FileArchiver
             Log("info", $"MaxLogSizeBytes: {config.MaxLogSizeBytes}", ConsoleColor.Magenta);
             Log("info", $"EnableEventLog: {config.EnableEventLog}", ConsoleColor.Magenta);
             Log("info", $"EventLogLevel: {config.EventLogLevel}", ConsoleColor.Magenta);
+            Log("info", $"NonWindowsEventLogPath: {config.NonWindowsEventLogPath}", ConsoleColor.Magenta);
+            Log("info", $"NonWindowsEventLogTarget: {config.NonWindowsEventLogTarget}", ConsoleColor.Magenta);
             Log("info", $"ZipFileNameFormat: {config.ZipFileNameFormat}", ConsoleColor.Magenta);
+            Log("info", $"SummaryOutputPath: {config.SummaryOutputPath}", ConsoleColor.Magenta);
             Log("info", "=== FileArchiver 処理開始 ===", ConsoleColor.Magenta);
             Log("info", $"[dry-run] {isDryRun}", ConsoleColor.Magenta);
             Log("info", $"[version] {Version}", ConsoleColor.Magenta);
@@ -142,7 +169,7 @@ namespace FileArchiver
             Log("info", $"[working-directory] {Environment.CurrentDirectory}", ConsoleColor.Magenta);
             Log("info", $"[process-id] {Process.GetCurrentProcess().Id}", ConsoleColor.Magenta);
             Log("info", $"[process-name] {Process.GetCurrentProcess().ProcessName}", ConsoleColor.Magenta);
-            Log("info", $"[process-path] {Process.GetCurrentProcess().MainModule.FileName}", ConsoleColor.Magenta);
+            Log("info", $"[process-path] {Environment.ProcessPath}", ConsoleColor.Magenta);
             Log("info", $"[process-args] {string.Join(" ", args)}", ConsoleColor.Magenta);
             
             foreach (var folder in config.FolderSettings)
@@ -266,6 +293,7 @@ namespace FileArchiver
 
                 foreach (var file in files)
                 {
+                    summary.Scanned++;
                     Log("debug", $"処理対象(ファイル): {file}", ConsoleColor.Cyan);
 
                     bool isZip = Path.GetExtension(file).Equals(".zip", StringComparison.OrdinalIgnoreCase);
@@ -288,6 +316,7 @@ namespace FileArchiver
                             {
                                 File.Move(file, newName);
                                 Log("info", $"リネーム完了: {file} → {newName}", ConsoleColor.Blue);
+                                summary.Renamed++;
                                 if (folder.CreateEmptyAfterRename)
                                 {
                                     try
@@ -314,12 +343,14 @@ namespace FileArchiver
                         {
                             string level = folder.RenameOnInUse == "error" ? "error" : "warn";
                             Log(level, $"リネーム失敗（使用中）: {file} ({ex.Message})", level == "error" ? ConsoleColor.Red : ConsoleColor.Yellow);
+                            summary.Failed++;
                             continue;
                         }
                     }
                     else
                     {
                         Log("debug", $"リネームスキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
 
                     // Compress
@@ -345,18 +376,21 @@ namespace FileArchiver
                                 }
                                 File.Delete(file);
                                 Log("info", $"圧縮削除完了: {file} → {zipPath}", ConsoleColor.Green);
+                                summary.Compressed++;
                             }
                             continue;
                         }
                         catch (Exception ex)
                         {
                             Log("warn", $"圧縮失敗: {file} ({ex.Message})", ConsoleColor.Yellow);
+                            summary.Failed++;
                             continue;
                         }
                     }
                     else
                     {
                         Log("debug", $"圧縮スキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
 
                     // Delete
@@ -370,20 +404,26 @@ namespace FileArchiver
                             {
                                 File.Delete(file);
                                 Log("info", $"削除完了: {file}", ConsoleColor.DarkRed);
+                                summary.Deleted++;
                             }
                         }
                         catch (IOException ex)
                         {
                             string level = folder.DeleteOnInUse == "error" ? "error" : "warn";
                             Log(level, $"削除失敗（使用中）: {file} ({ex.Message})", level == "error" ? ConsoleColor.Red : ConsoleColor.Yellow);
+                            summary.Failed++;
                         }
                     }
                     else
                     {
                         Log("debug", $"削除スキップ: {file}", ConsoleColor.Cyan);
+                        summary.Skipped++;
                     }
                 }
             }
+            WriteSummary();
+            Log("info", $"[summary] scanned={summary.Scanned}, renamed={summary.Renamed}, compressed={summary.Compressed}, deleted={summary.Deleted}, skipped={summary.Skipped}, failed={summary.Failed}", ConsoleColor.Magenta);
+            Environment.ExitCode = summary.Failed > 0 ? ExitRuntimeError : ExitSuccess;
             Log("info", "=== FileArchiver 処理完了 ===", ConsoleColor.Magenta);
         }
 
@@ -432,7 +472,7 @@ namespace FileArchiver
             Console.WriteLine("    → 実際には操作せず、現在の設定でどのファイルが対象になるか確認できます。");
         }
 
-        static void CheckConfig()
+        static bool CheckConfig()
         {
             Console.WriteLine("[CHECK] 設定ファイルの整合性チェックを開始します");
 
@@ -564,6 +604,7 @@ namespace FileArchiver
                 Console.WriteLine("すべての設定が正しく構成されています。");
                 Console.ResetColor();
             }
+            return !hasError;
         }
 
         static void Log(string type, string message, ConsoleColor color)
@@ -597,19 +638,18 @@ namespace FileArchiver
             RotateLogIfNeeded();
             File.AppendAllText(config.LogFilePath, msg + Environment.NewLine);
 
-            // Windows イベントログ出力
+            // Windows イベントログ / 非Windows疑似イベントログ出力
             if (config.EnableEventLog &&
                 (config.EventLogLevel == "debug" ||
                  (config.EventLogLevel == "info" && type != "debug") ||
                  (config.EventLogLevel == "warn" && (type == "warn" || type == "error")) ||
                  (config.EventLogLevel == "error" && type == "error")))
             {
-                try
+                if (OperatingSystem.IsWindows())
                 {
-
                     try
                     {
-                        using (var eventLog = new System.Diagnostics.EventLog("Application"))
+                        using (var eventLog = new EventLog("Application"))
                         {
                             eventLog.Source = "FileArchiver";
                             EventLogEntryType logType;
@@ -634,11 +674,77 @@ namespace FileArchiver
                         Console.WriteLine($"[warn] イベントログへの出力に失敗: {ex.Message}");
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    // イベントログへの書き込みに失敗しても処理は継続
-                    Console.WriteLine($"[warn] イベントログへの出力に失敗: {ex.Message}");
+                    try
+                    {
+                        var target = (config.NonWindowsEventLogTarget ?? "both").ToLowerInvariant();
+                        if (target == "file" || target == "both")
+                            WriteNonWindowsEventLogToFile(msg);
+                        if (target == "syslog" || target == "both")
+                            WriteNonWindowsEventLogToSyslog(type, message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[warn] 非Windowsイベントログへの出力に失敗: {ex.Message}");
+                    }
                 }
+            }
+        }
+
+        static void WriteNonWindowsEventLogToFile(string msg)
+        {
+            var eventLogPath = string.IsNullOrWhiteSpace(config.NonWindowsEventLogPath)
+                ? "eventlog.txt"
+                : config.NonWindowsEventLogPath;
+            var eventLogDir = Path.GetDirectoryName(eventLogPath);
+            if (!string.IsNullOrWhiteSpace(eventLogDir) && !Directory.Exists(eventLogDir))
+                Directory.CreateDirectory(eventLogDir);
+            File.AppendAllText(eventLogPath, msg + Environment.NewLine);
+        }
+
+        static void WriteNonWindowsEventLogToSyslog(string type, string message)
+        {
+            var facilityUser = 1 << 3;
+            var severity = type == "error" ? 3 : type == "warn" ? 4 : 6;
+            var priority = facilityUser + severity;
+            var payload = $"<{priority}>FileArchiver: {message}";
+            var bytes = Encoding.UTF8.GetBytes(payload);
+
+            if (File.Exists("/dev/log"))
+            {
+                using var socket = new Socket(AddressFamily.Unix, SocketType.Dgram, ProtocolType.Unspecified);
+                var endpoint = new UnixDomainSocketEndPoint("/dev/log");
+                socket.Connect(endpoint);
+                socket.Send(bytes);
+                return;
+            }
+
+            if (File.Exists("/var/run/syslog"))
+            {
+                using var socket = new Socket(AddressFamily.Unix, SocketType.Dgram, ProtocolType.Unspecified);
+                var endpoint = new UnixDomainSocketEndPoint("/var/run/syslog");
+                socket.Connect(endpoint);
+                socket.Send(bytes);
+            }
+        }
+
+
+        static void WriteSummary()
+        {
+            if (string.IsNullOrWhiteSpace(config.SummaryOutputPath)) return;
+            try
+            {
+                var summaryPath = config.SummaryOutputPath;
+                var dir = Path.GetDirectoryName(summaryPath);
+                if (!string.IsNullOrWhiteSpace(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+                var json = System.Text.Json.JsonSerializer.Serialize(summary, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(summaryPath, json);
+            }
+            catch (Exception ex)
+            {
+                Log("warn", $"サマリー出力に失敗: {ex.Message}", ConsoleColor.Yellow);
             }
         }
 

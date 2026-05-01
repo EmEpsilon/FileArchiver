@@ -1,139 +1,236 @@
 # FileArchiver
 
-‚±‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚ÍAw’è‚µ‚½ƒfƒBƒŒƒNƒgƒŠ“à‚Ìƒtƒ@ƒCƒ‹‚ğ©“®“I‚É Zip ˆ³k‚µAŒ³ƒtƒ@ƒCƒ‹‚ğíœ‚·‚éƒc[ƒ‹‚Å‚·B
-ˆê’è“ú”ˆÈãŒo‰ß‚µ‚½ƒtƒ@ƒCƒ‹‚¾‚¯‚ğ‘ÎÛ‚Æ‚·‚é‚±‚Æ‚ÅA•s—v‚ÈŒÃ‚¢ƒtƒ@ƒCƒ‹‚ğƒA[ƒJƒCƒu‚µAƒfƒBƒXƒN—Ìˆæ‚ğŒø—¦“I‚É—˜—p‚Å‚«‚Ü‚·B
+FileArchiver ã¯ã€æŒ‡å®šãƒ•ã‚©ãƒ«ãƒ€é…ä¸‹ã®ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¡ä»¶ã«å¿œã˜ã¦ **ãƒªãƒãƒ¼ãƒ  / ZIPåœ§ç¸® / å‰Šé™¤** ã™ã‚‹ CLI ãƒ„ãƒ¼ãƒ«ã§ã™ã€‚  
+å®šæœŸå®Ÿè¡Œï¼ˆã‚¿ã‚¹ã‚¯ã‚¹ã‚±ã‚¸ãƒ¥ãƒ¼ãƒ© / cronï¼‰ã‚’å‰æã¨ã—ãŸé‹ç”¨ã‚’æƒ³å®šã—ã¦ã„ã¾ã™ã€‚
 
-## å‚È‹@”\
+## å¯¾å¿œç’°å¢ƒ
 
-1. **Zip ˆ³k**
+- .NET 10ï¼ˆé–‹ç™ºãƒ»ãƒ“ãƒ«ãƒ‰æ™‚ï¼‰
+- å®Ÿè¡Œç’°å¢ƒ: Windows / Linux / macOS
+- self-contained publish ã«ã‚ˆã‚Šãƒ©ãƒ³ã‚¿ã‚¤ãƒ åŒæ¢±é…å¸ƒå¯èƒ½
 
-   - w’è‚µ‚½“ú” (DaysOld) ‚æ‚è‚àƒtƒ@ƒCƒ‹‚ÌÅIXV“ú‚ªŒÃ‚¢ê‡Aƒtƒ@ƒCƒ‹‚ğ Zip ˆ³k‚µ‚ÄŒ³ƒtƒ@ƒCƒ‹‚ğíœB
-   - ˆ³kæ‚Ì Zip ƒtƒ@ƒCƒ‹–¼‚É‚Íƒ^ƒCƒ€ƒXƒ^ƒ“ƒv (yyyyMMddHHmmss) ‚ª•t‰Á‚³‚êAã‘‚«Õ“Ë‚ğ–h‚¬‚Ü‚·B
+---
 
-2. **ƒhƒ‰ƒCƒ‰ƒ“ (Dry-run)**
+## ã‚¯ã‚¤ãƒƒã‚¯ã‚¹ã‚¿ãƒ¼ãƒˆ
 
-   - `--dry-run` ƒIƒvƒVƒ‡ƒ“‚ğw’è‚·‚é‚ÆAÀÛ‚Ìƒtƒ@ƒCƒ‹‘€ì‚Ís‚í‚¸A‚Ç‚Ìƒtƒ@ƒCƒ‹‚ª‘ÎÛ‚È‚Ì‚©‚Ì‚İƒƒOo—ÍB
+```bash
+# 1) ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆè¨­å®šã‚’ä½œæˆ
+FileArchiver --init-config
 
-3. **ƒƒOŠÇ—‚Æƒ[ƒe[ƒVƒ‡ƒ“**
+# 2) è¨­å®šå†…å®¹ã‚’ç¢ºèª
+FileArchiver --check
 
-   - w’èƒTƒCƒY (`MaxLogSizeBytes`) ‚ğ’´‚¦‚é‚ÆAƒƒOƒtƒ@ƒCƒ‹‚ª©“®‚Å Zip ˆ³k‚³‚êƒ[ƒe[ƒVƒ‡ƒ“B
+# 3) å½±éŸ¿ç¢ºèªï¼ˆå®Ÿå¤‰æ›´ãªã—ï¼‰
+FileArchiver --dry-run
 
-4. **İ’èƒtƒ@ƒCƒ‹ (config.toml)**
-
-   - TOMLŒ`®‚Åİ’è‚ğs‚¢Aˆ³k‘ÎÛ‚Ì“ú”‚âƒtƒHƒ‹ƒ_İ’èAƒƒOo—Íæ‚È‚Ç‚ğ§Œä‰Â”\B
-
-## g‚¢•û
-
-1. **ƒwƒ‹ƒv•\¦**
-
-   ```powershell
-   FileArchiver.exe --help
-   ```
-
-   å—v‚ÈƒIƒvƒVƒ‡ƒ“‚ÆŠÈˆÕà–¾‚ğ•\¦‚µ‚Ü‚·B
-
-2. **config.toml ‚Ì€”õ**
-   “¯‚¶ƒtƒHƒ‹ƒ_‚É `config.toml` ‚ğ—pˆÓ‚µAˆÈ‰º‚Ì‚æ‚¤‚Èİ’è‚ğ‘‚«‚Ü‚·B‚Ü‚½‚Í“Æ©‚É•ÒW‚µ‚Ä‚­‚¾‚³‚¢B
-
-   ```toml
-   LogFilePath = "log.txt"       # ƒƒOƒtƒ@ƒCƒ‹o—Íæ
-   LogLevel = "info"             # ƒƒOo—ÍÚ×“x (debug/info/warn/error)
-   MaxLogSizeBytes = 1048576      # 1MB ‚ÅƒƒOƒ[ƒe[ƒVƒ‡ƒ“
-   ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"  # ˆ³kƒtƒ@ƒCƒ‹‚Ì–¼‘OƒtƒH[ƒ}ƒbƒg
-
-   [[FolderSettings]]
-   Directory = "C:/data"        # ˆ—‘ÎÛƒtƒHƒ‹ƒ_
-   DaysOld = 30                  # 30“úˆÈã‘O‚ÉXV‚³‚ê‚½ƒtƒ@ƒCƒ‹‚ğˆ³k
-   IncludePattern = "\\.log$"   # .logƒtƒ@ƒCƒ‹‚ğ‘ÎÛ
-   ExcludePattern = "^temp"     # temp‚Ån‚Ü‚éƒtƒ@ƒCƒ‹‚ÍœŠO
-   Recursive = true              # ƒTƒuƒtƒHƒ‹ƒ_‚àŠÜ‚ß‚é‚©
-   ```
-
-3. **®‡«ƒ`ƒFƒbƒN**
-
-   ```powershell
-   FileArchiver.exe --check
-   ```
-
-   `config.toml` ‚Ì“à—e‚Æ®‡«‚ğƒ`ƒFƒbƒN‚µAƒGƒ‰[‚âŒx‚ª‚ ‚ê‚Î•\¦‚µ‚Ü‚·B
-
-4. **Dry-run**
-
-   ```powershell
-   FileArchiver.exe --dry-run
-   ```
-
-   ƒtƒ@ƒCƒ‹‘€ì‚Ís‚í‚¸Aˆ——\’èƒtƒ@ƒCƒ‹‚Ì‚İ‚ğƒƒOo—ÍBˆÀ‘S‚ÉƒeƒXƒg‚Å‚«‚Ü‚·B
-
-5. **–{”ÔÀs**
-
-   ```powershell
-   FileArchiver.exe
-   ```
-
-   İ’èƒtƒ@ƒCƒ‹‚É‚µ‚½‚ª‚Á‚ÄAZIPˆ³k‚âíœ‚ğÀ{BÀs“à—e‚ÍƒRƒ“ƒ\[ƒ‹‚Æ `log.txt` ‚Éo—Í‚³‚ê‚Ü‚·B
-
-## ƒIƒvƒVƒ‡ƒ“ˆê——
-
-| ƒIƒvƒVƒ‡ƒ“           | à–¾                                                                        |
-| --------------- | ------------------------------------------------------------------------- |
-| `--help`        | ‚±‚Ìƒwƒ‹ƒv‚ğ•\¦                                                                  |
-| `--check`       | `config.toml` ‚Ì“à—e‚Æ®‡«‚ğƒ`ƒFƒbƒN                                                |
-| `--dry-run`     | ÀÛ‚Ì‘€ì‚ğs‚í‚¸A‚Ç‚Ìƒtƒ@ƒCƒ‹‚ª‘ÎÛ‚É‚È‚é‚©ƒƒOo—Í‚Ì‚İ                                             |
-| `--version`     | ƒo[ƒWƒ‡ƒ“î•ñ‚ğ•\¦                                                                |
-| `--init-config` | ƒeƒ“ƒvƒŒ[ƒg `config.toml` ‚ğì¬Bˆø”‚Åo—Íƒtƒ@ƒCƒ‹–¼‚ğw’è‰Â”\ (—á: `--init-config myconf.toml`) |
-
-## config.toml Ú×İ’è
-
-| €–Ú                     | à–¾                                           |
-| ---------------------- | -------------------------------------------- |
-| **LogFilePath**        | ƒƒOƒtƒ@ƒCƒ‹‚Ì•Û‘¶æƒpƒX                                 |
-| **LogLevel**           | ƒƒOo—Í‚ÌÚ×“xidebug / info / warn / errorj        |
-| **MaxLogSizeBytes**    | ƒƒOƒtƒ@ƒCƒ‹ƒTƒCƒY‚ª‚±‚ê‚ğ’´‚¦‚é‚Æ©“®‚Å ZIP ˆ³k                  |
-| **ZipFileNameFormat**  | ZIP ƒtƒ@ƒCƒ‹–¼‚ÌƒtƒH[ƒ}ƒbƒg (`{0}` ‚É“ú‚ª‘}“ü‚³‚ê‚é)           |
-| **EnableEventLog**     | Windows ƒCƒxƒ“ƒgƒƒO‚Öo—Í‚·‚é‚© (true / false)          |
-| **EventLogLevel**      | ƒCƒxƒ“ƒgƒƒO‚Ö‚Ìo—ÍÅ’áƒŒƒxƒ‹idebug / info / warn / errorj |
-| **[[FolderSettings]]** | •¡”w’è‰ÂBŠeƒtƒHƒ‹ƒ_‚²‚Æ‚É×‚©‚¢İ’è‚ª‰Â”\BˆÈ‰º‚Íå‚Èƒpƒ‰ƒ[ƒ^‚ğ—ñ‹“B        |
-
-### FolderSettings “à‚Ìå‚Èƒpƒ‰ƒ[ƒ^
-
-| ƒpƒ‰ƒ[ƒ^                      | ˆÓ–¡                                          |
-| -------------------------- | ------------------------------------------- |
-| **Directory**              | ‘ÎÛƒtƒHƒ‹ƒ_‚ÌƒpƒXi•K{j                               |
-| **DaysOld**                | ƒtƒ@ƒCƒ‹‚ÌXV“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡‚ÉZIPˆ³k‘ÎÛ                   |
-| **IncludePattern**         | ƒtƒ@ƒCƒ‹–¼‚ğ³‹K•\Œ»‚Åw’è‚µA‘ÎÛ‚ÉŠÜ‚ß‚é                       |
-| **ExcludePattern**         | ƒtƒ@ƒCƒ‹–¼‚ğ³‹K•\Œ»‚Åw’è‚µA‘ÎÛ‚©‚çœŠO‚·‚é                     |
-| **Recursive**              | ƒTƒuƒtƒHƒ‹ƒ_‚àŠÜ‚ß‚é‚© (true/false)                    |
-| **EnableRename**           | ƒŠƒl[ƒ€‹@”\‚ğg‚¤‚© (true/false)                     |
-| **RenameDaysOld**          | ƒtƒ@ƒCƒ‹ì¬“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡ƒŠƒl[ƒ€‘ÎÛ                      |
-| **RenameOnInUse**          | ƒŠƒl[ƒ€Aƒtƒ@ƒCƒ‹ƒƒbƒN‚É‘˜‹ö‚µ‚½ê‡‚Ì‹““® (`warn` or `error`) |
-| **EnableDelete**           | íœ‹@”\‚ğg‚¤‚© (true/false)                       |
-| **DeleteDaysOld**          | ƒtƒ@ƒCƒ‹ì¬“ú‚ª‚±‚êˆÈãŒÃ‚¢ê‡íœ‘ÎÛ                        |
-| **DeleteOnInUse**          | íœƒtƒ@ƒCƒ‹ƒƒbƒN‚É‘˜‹ö‚µ‚½ê‡‚Ì‹““® (`warn` or `error`)    |
-| **EnableZipCompression**   | Zipˆ³k‚ğs‚¤‚© (true/false)                      |
-| **CreateEmptyAfterRename** | ƒŠƒl[ƒ€ŒãA“¯–¼‚Ì‹óƒtƒ@ƒCƒ‹‚ğì¬‚·‚é‚© (true/false)           |
-
-## ƒƒOƒŒƒxƒ‹‚É‚Â‚¢‚Ä
-
-- `debug` : ‘SƒƒO (ƒfƒoƒbƒOî•ñ‚ğŠÜ‚Ş)
-- `info`  : debug ‚ğœ‚­ƒƒO
-- `warn`  : Œx (warn) ‚ÆƒGƒ‰[ (error) ‚Ì‚İ
-- `error` : ƒGƒ‰[‚Ì‚İ
-
-## WindowsƒCƒxƒ“ƒgƒƒO‚Ö‚Ìo—Í
-
-`EnableEventLog = true` ‚Éİ’è‚µA`EventLogLevel` ‚ğ“KØ‚Éw’è‚·‚é‚ÆAWindows‚Ì Application ƒCƒxƒ“ƒgƒƒO‚É‚ào—Í‚µ‚Ü‚·B‚½‚¾‚µAˆÈ‰º‚Ìİ’è‚ª•K—v‚Å‚·F
-
-```powershell
-# PowerShell‚È‚Ç‚ÅÀsiŠÇ—ÒŒ ŒÀj
-# "FileArchiver" ‚Æ‚¢‚¤ƒ\[ƒX‚ğ "Application" ƒƒO‚É“o˜^
-New-EventLog -LogName Application -Source "FileArchiver"
+# 4) æœ¬ç•ªå®Ÿè¡Œ
+FileArchiver
 ```
 
-ŠÇ—ÒŒ ŒÀ‚ª•K—v‚Æ‚È‚éê‡‚ª‚ ‚é‚½‚ßAŒ ŒÀİ’è‚âƒ|ƒŠƒV[‚É’ˆÓ‚µ‚Ä‚­‚¾‚³‚¢B
+---
 
-## ‚»‚Ì‘¼
+## ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³ã‚ªãƒ—ã‚·ãƒ§ãƒ³è©³ç´°
 
-- `.NET Framework 4.6.2` ˆÈ~‚Å“®ì‚µ‚Ü‚·B
-- ˆ³kæ‚ÍŒÂ•Êƒtƒ@ƒCƒ‹ (\*.zip) ‚Æ‚È‚èAÕ“Ë‚ğ”ğ‚¯‚é‚½‚ß‚É `_yyyyMMddHHmmss` ‚ğ•t‰Á‚µ‚Ä–½–¼‚µ‚Ü‚·B
-- ‚±‚Ìƒc[ƒ‹‚ÍAChatGPT‚ğ—p‚¢‚Äì¬‚µ‚Ü‚µ‚½B
+| ã‚ªãƒ—ã‚·ãƒ§ãƒ³ | èª¬æ˜ | ä¸»ãªç”¨é€” |
+|---|---|---|
+| `--help` | ãƒ˜ãƒ«ãƒ—ã‚’è¡¨ç¤º | ä½¿ã„æ–¹ã®ç¢ºèª |
+| `--version` | ãƒãƒ¼ã‚¸ãƒ§ãƒ³æƒ…å ±ã‚’è¡¨ç¤º | é‹ç”¨æ™‚ã®ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç¢ºèª |
+| `--init-config [path]` | è¨­å®šãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã‚’ä½œæˆã€‚`path` çœç•¥æ™‚ã¯ `./config.toml` | åˆæœŸå°å…¥ |
+| `--check` | `config.toml` ã®æ•´åˆæ€§ãƒã‚§ãƒƒã‚¯ã®ã¿ã‚’å®Ÿæ–½ | æœ¬ç•ªå‰æ¤œè¨¼ / CI |
+| `--dry-run` | å®Ÿãƒ•ã‚¡ã‚¤ãƒ«æ“ä½œãªã—ã§å¯¾è±¡ã¨äºˆå®šæ“ä½œã‚’ãƒ­ã‚°å‡ºåŠ› | å½±éŸ¿ç¯„å›²ç¢ºèª |
+
+### `--init-config` ã®æ³¨æ„
+
+- `--init-config` ã®ç›´å¾ŒãŒåˆ¥ã‚ªãƒ—ã‚·ãƒ§ãƒ³ï¼ˆ`--xxx`ï¼‰ãªã‚‰ã€ãƒ‘ã‚¹æŒ‡å®šãªã—æ‰±ã„ã«ãªã‚Šã¾ã™ã€‚
+- ä¾‹: `FileArchiver --init-config myconfig.toml`
+
+---
+
+## çµ‚äº†ã‚³ãƒ¼ãƒ‰
+
+| ã‚³ãƒ¼ãƒ‰ | æ„å‘³ |
+|---|---|
+| `0` | æ­£å¸¸çµ‚äº† |
+| `2` | è¨­å®šã‚¨ãƒ©ãƒ¼ï¼ˆ`--check` å¤±æ•—ãªã©ï¼‰ |
+| `3` | å®Ÿè¡Œæ™‚ã‚¨ãƒ©ãƒ¼ï¼ˆå‡¦ç†å¤±æ•—ä»¶æ•°ã‚ã‚Šï¼‰ |
+
+---
+
+## config.toml è©³ç´°
+
+### ã‚°ãƒ­ãƒ¼ãƒãƒ«è¨­å®š
+
+| ã‚­ãƒ¼ | å¿…é ˆ | ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ | èª¬æ˜ |
+|---|---|---|---|
+| `LogFilePath` | ä»»æ„ | `log.txt` | é€šå¸¸ãƒ­ã‚°ã®å‡ºåŠ›å…ˆã€‚æœªæŒ‡å®šæ™‚ã¯å®Ÿè¡Œãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªç›´ä¸‹ã® `log.txt` |
+| `LogLevel` | ä»»æ„ | `info` | `debug/info/warn/error`ã€‚æœªæŒ‡å®šæ™‚ã¯ `info` |
+| `MaxLogSizeBytes` | ä»»æ„ | `1048576` | ãƒ­ã‚°ãƒ­ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³é–¾å€¤ï¼ˆè¶…éã§ ZIP åŒ–ï¼‰ |
+| `ZipFileNameFormat` | ä»»æ„ | `archive_{0:yyyyMMddHHmmss}.zip` | ZIPãƒ•ã‚¡ã‚¤ãƒ«åãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆ |
+| `EnableEventLog` | ä»»æ„ | `false` | `true` æ™‚ã«ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°å‡ºåŠ›å‡¦ç†ã‚’æœ‰åŠ¹åŒ– |
+| `EventLogLevel` | ä»»æ„ | `warn` | ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°å‡ºåŠ›ãƒ¬ãƒ™ãƒ« (`debug/info/warn/error`) |
+| `NonWindowsEventLogPath` | ä»»æ„ | `eventlog.txt` | éWindowsæ™‚ã®ã‚¤ãƒ™ãƒ³ãƒˆãƒ­ã‚°ç›¸å½“ãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›å…ˆ |
+| `NonWindowsEventLogTarget` | ä»»æ„ | `both` | `file` / `syslog` / `both` |
+| `SummaryOutputPath` | ä»»æ„ | `summary.json` | å®Ÿè¡Œã‚µãƒãƒªãƒ¼ JSON å‡ºåŠ›å…ˆï¼ˆç©ºæ–‡å­—ãªã‚‰å‡ºåŠ›ã—ãªã„ï¼‰ |
+
+### `[[FolderSettings]]`ï¼ˆè¤‡æ•°å¯ï¼‰
+
+| ã‚­ãƒ¼ | å¿…é ˆ | ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆ | èª¬æ˜ |
+|---|---|---|---|
+| `Directory` | **å¿…é ˆ** | ãªã— | å‡¦ç†å¯¾è±¡ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã€‚æœªæŒ‡å®šãªã‚‰å½“è©²ãƒ–ãƒ­ãƒƒã‚¯ã¯ã‚¨ãƒ©ãƒ¼æ‰±ã„ |
+| `Recursive` | ä»»æ„ | `false` | ã‚µãƒ–ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’å«ã‚ã‚‹ã‹ |
+| `IncludePattern` | ä»»æ„ | `.*` | å¯¾è±¡ã«å«ã‚ã‚‹æ­£è¦è¡¨ç¾ |
+| `ExcludePattern` | ä»»æ„ | `""` (ç©ºæ–‡å­—) | å¯¾è±¡ã‹ã‚‰é™¤å¤–ã™ã‚‹æ­£è¦è¡¨ç¾ |
+| `DaysOld` | æ¡ä»¶ä»˜ãå¿…é ˆ | `0` | `EnableZipCompression=true` ã®å ´åˆã¯ `>0` å¿…é ˆ |
+| `EnableZipCompression` | ä»»æ„ | `true` | åœ§ç¸®æ©Ÿèƒ½ON/OFF |
+| `EnableRename` | ä»»æ„ | `false` | ãƒªãƒãƒ¼ãƒ æ©Ÿèƒ½ON/OFF |
+| `RenameDaysOld` | æ¡ä»¶ä»˜ãå¿…é ˆ | `30` | `EnableRename=true` ã®å ´åˆã¯ `>0` å¿…é ˆ |
+| `RenameOnInUse` | ä»»æ„ | `warn` | ä½¿ç”¨ä¸­ãƒ•ã‚¡ã‚¤ãƒ«æ™‚ã®æŒ™å‹• (`warn`/`error`) |
+| `CreateEmptyAfterRename` | ä»»æ„ | `false` | ãƒªãƒãƒ¼ãƒ å¾Œã«å…ƒåã®ç©ºãƒ•ã‚¡ã‚¤ãƒ«ä½œæˆ |
+| `EnableDelete` | ä»»æ„ | `false` | å‰Šé™¤æ©Ÿèƒ½ON/OFF |
+| `DeleteDaysOld` | æ¡ä»¶ä»˜ãå¿…é ˆ | `60` | `EnableDelete=true` ã®å ´åˆã¯ `>0` å¿…é ˆ |
+| `DeleteOnInUse` | ä»»æ„ | `warn` | ä½¿ç”¨ä¸­ãƒ•ã‚¡ã‚¤ãƒ«æ™‚ã®æŒ™å‹• (`warn`/`error`) |
+| `DateComparisonToleranceMinutes` | ä»»æ„ | `5` | æ—¥ä»˜æ¯”è¼ƒã®è¨±å®¹åˆ†ï¼ˆåˆ†ï¼‰ |
+
+#### `[[FolderSettings]]` ã‚’è¤‡æ•°è¨­å®šã™ã‚‹æ›¸ãæ–¹
+
+`[[FolderSettings]]` ãƒ–ãƒ­ãƒƒã‚¯ã‚’ **å¿…è¦ãªæ•°ã ã‘ç¹°ã‚Šè¿”ã—** è¨˜è¿°ã—ã¾ã™ã€‚  
+å„ãƒ–ãƒ­ãƒƒã‚¯ãŒ 1 ã¤ã®å¯¾è±¡ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªè¨­å®šã«ãªã‚Šã¾ã™ã€‚
+
+```toml
+[[FolderSettings]]
+Directory = "./app1-logs"
+DaysOld = 7
+IncludePattern = "\\.log$"
+ExcludePattern = "^temp"
+Recursive = true
+EnableRename = true
+RenameDaysOld = 1
+EnableDelete = true
+DeleteDaysOld = 30
+EnableZipCompression = true
+
+[[FolderSettings]]
+Directory = "./app2-logs"
+DaysOld = 3
+IncludePattern = "\\.txt$"
+ExcludePattern = ""
+Recursive = false
+EnableRename = false
+EnableDelete = false
+EnableZipCompression = true
+```
+
+---
+
+## ãƒ•ã‚¡ã‚¤ãƒ«ãƒ­ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³ã®å…·ä½“ä¾‹
+
+### è¦ä»¶
+
+- å¯¾è±¡ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª: `./XX`
+- å¯¾è±¡æ‹¡å¼µå­: `.log`
+- ä½œæˆã‹ã‚‰ **1æ—¥** çµŒéã§ãƒªãƒãƒ¼ãƒ 
+- æ›´æ–°ã‹ã‚‰ **5æ—¥** çµŒéã§åœ§ç¸®
+- ä½œæˆã‹ã‚‰ **10æ—¥** çµŒéã§å‰Šé™¤
+
+### è¨­å®šä¾‹ï¼ˆãã®ã¾ã¾ä½¿ãˆã‚‹å½¢ï¼‰
+
+```toml
+LogFilePath = "log.txt"
+LogLevel = "info"
+MaxLogSizeBytes = 1048576
+ZipFileNameFormat = "archive_{0:yyyyMMddHHmmss}.zip"
+
+EnableEventLog = false
+EventLogLevel = "warn"
+NonWindowsEventLogPath = "eventlog.txt"
+NonWindowsEventLogTarget = "file"
+
+SummaryOutputPath = "summary.json"
+
+[[FolderSettings]]
+Directory = "./XX"
+Recursive = true
+IncludePattern = "\\.log$"
+ExcludePattern = ""
+
+EnableRename = true
+RenameDaysOld = 1
+RenameOnInUse = "warn"
+CreateEmptyAfterRename = false
+
+EnableZipCompression = true
+DaysOld = 5
+
+EnableDelete = true
+DeleteDaysOld = 10
+DeleteOnInUse = "warn"
+
+DateComparisonToleranceMinutes = 5
+```
+
+### ã“ã®è¨­å®šã§èµ·ã“ã‚‹ãƒ­ãƒ¼ãƒ†ãƒ¼ã‚·ãƒ§ãƒ³
+
+1. `./XX` é…ä¸‹ï¼ˆå†å¸°ï¼‰ã§ `.log` ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å¯¾è±¡ã«ã—ã¾ã™ã€‚
+2. ä½œæˆæ—¥æ™‚ãŒ 1 æ—¥ä»¥ä¸Šå‰ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯ `_yyyyMMddHHmmss` ä»˜ãã«ãƒªãƒãƒ¼ãƒ ã•ã‚Œã¾ã™ã€‚
+3. æœ€çµ‚æ›´æ–°æ—¥æ™‚ãŒ 5 æ—¥ä»¥ä¸Šå‰ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯ ZIP åœ§ç¸®ã•ã‚Œã€å…ƒãƒ•ã‚¡ã‚¤ãƒ«ã¯å‰Šé™¤ã•ã‚Œã¾ã™ã€‚
+4. ä½œæˆæ—¥æ™‚ãŒ 10 æ—¥ä»¥ä¸Šå‰ã®ãƒ•ã‚¡ã‚¤ãƒ«ã¯å‰Šé™¤ã•ã‚Œã¾ã™ã€‚
+
+## ä½¿ç”¨ä¾‹
+
+### ä¾‹1: å°å…¥ç›´å¾Œã®å®‰å…¨ç¢ºèª
+
+```bash
+FileArchiver --init-config
+FileArchiver --check
+FileArchiver --dry-run
+```
+
+### ä¾‹2: Linux ã‚µãƒ¼ãƒãƒ¼ã§ syslog ã«ã‚‚å‡ºã—ãŸã„
+
+```toml
+EnableEventLog = true
+EventLogLevel = "info"
+NonWindowsEventLogTarget = "both"
+NonWindowsEventLogPath = "/var/log/filearchiver-event.log"
+```
+
+### ä¾‹3: æ—¥æ¬¡é‹ç”¨ï¼ˆcronï¼‰
+
+```cron
+0 2 * * * /opt/filearchiver/FileArchiver >> /var/log/filearchiver-cron.log 2>&1
+```
+
+### ä¾‹4: CI ã§è¨­å®šãƒ•ã‚¡ã‚¤ãƒ«ã ã‘æ¤œè¨¼
+
+```bash
+FileArchiver --check
+echo $?  # 0:OK / 2:è¨­å®šä¸æ­£
+```
+
+---
+
+## å®Ÿè¡Œã‚µãƒãƒªãƒ¼
+
+`SummaryOutputPath` ã« JSON ã‚’å‡ºåŠ›ã—ã¾ã™ã€‚
+
+```json
+{
+  "Scanned": 120,
+  "Renamed": 10,
+  "Compressed": 30,
+  "Deleted": 5,
+  "Skipped": 72,
+  "Failed": 3
+}
+```
+
+---
+
+## ãƒ†ã‚¹ãƒˆ
+
+- ãƒ†ã‚¹ãƒˆã‚³ãƒ¼ãƒ‰: `FileArchiver.Tests/ArchiverBehaviorTests.cs`
+- ãƒ†ã‚¹ãƒˆè¨­è¨ˆæ›¸: `test/TESTCASE.md`
+
+```bash
+dotnet test FileArchiver.sln -v minimal
+```
